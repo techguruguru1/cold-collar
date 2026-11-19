@@ -95,61 +95,63 @@ function AuthPage() {
           </p>
         </div>
       ) : (
-        <form onSubmit={submit} className="card-surface mt-8 space-y-4 p-6">
+        <div className="card-surface mt-8 space-y-4 p-6">
           <GoogleSignInButton fallback={() => void signInWithGoogle()} />
           <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
             <span className="h-px flex-1 bg-border" />
             or
             <span className="h-px flex-1 bg-border" />
           </div>
-          <div>
-            <label htmlFor="email" className="text-[11px] uppercase tracking-[0.2em] text-silver">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full border border-border bg-input px-4 py-3 text-sm outline-none focus:border-silver"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="text-[11px] uppercase tracking-[0.2em] text-silver"
+          <form onSubmit={submit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="text-[11px] uppercase tracking-[0.2em] text-silver">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-2 w-full border border-border bg-input px-4 py-3 text-sm outline-none focus:border-silver"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="text-[11px] uppercase tracking-[0.2em] text-silver"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-2 w-full border border-border bg-input px-4 py-3 text-sm outline-none focus:border-silver"
+              />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                At least 8 characters. Letters, numbers or both.
+              </p>
+            </div>
+            <button
+              disabled={busy}
+              type="submit"
+              className="btn-silver w-full py-3 text-xs disabled:opacity-60"
             >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full border border-border bg-input px-4 py-3 text-sm outline-none focus:border-silver"
-            />
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              At least 8 characters. Letters, numbers or both.
-            </p>
-          </div>
-          <button
-            disabled={busy}
-            type="submit"
-            className="btn-silver w-full py-3 text-xs disabled:opacity-60"
-          >
-            {busy ? "Please wait…" : mode === "login" ? "Sign In" : "Create Account"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode(mode === "login" ? "signup" : "login")}
-            className="w-full text-center text-xs text-muted-foreground hover:text-silver"
-          >
-            {mode === "login" ? "No account? Create one" : "Already a member? Sign in"}
-          </button>
-        </form>
+              {busy ? "Please wait…" : mode === "login" ? "Sign In" : "Create Account"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              className="w-full text-center text-xs text-muted-foreground hover:text-silver"
+            >
+              {mode === "login" ? "No account? Create one" : "Already a member? Sign in"}
+            </button>
+          </form>
+        </div>
       )}
     </div>
   );
