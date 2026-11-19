@@ -66,6 +66,18 @@ function AuthPage() {
     }
   };
 
+  const signInWithGoogle = async () => {
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/account` },
+    });
+    if (error) {
+      setBusy(false);
+      toast(error.message);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-md px-4 py-20">
       <h1 className="font-display text-3xl">{mode === "login" ? "Sign In" : "Create Account"}</h1>
@@ -83,6 +95,25 @@ function AuthPage() {
         </div>
       ) : (
         <form onSubmit={submit} className="card-surface mt-8 space-y-4 p-6">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void signInWithGoogle()}
+            className="flex w-full items-center justify-center gap-2 border border-border bg-input py-3 text-xs uppercase tracking-[0.2em] text-silver hover:border-silver disabled:opacity-60"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
+              <path
+                fill="#EA4335"
+                d="M12 10.2v3.9h5.5c-.2 1.3-1.6 3.9-5.5 3.9-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.3 14.6 2.3 12 2.3 6.6 2.3 2.3 6.6 2.3 12s4.3 9.7 9.7 9.7c5.6 0 9.3-3.9 9.3-9.5 0-.6-.1-1.1-.2-1.6H12z"
+              />
+            </svg>
+            Continue with Google
+          </button>
+          <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="h-px flex-1 bg-border" />
+            or
+            <span className="h-px flex-1 bg-border" />
+          </div>
           <div>
             <label htmlFor="email" className="text-[11px] uppercase tracking-[0.2em] text-silver">
               Email
