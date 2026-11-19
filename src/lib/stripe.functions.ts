@@ -1,5 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { CURRENCY_CODES, type Currency } from "@/config/currency";
+
+const toCurrency = (c: string | null | undefined): Currency =>
+  (CURRENCY_CODES as string[]).includes((c ?? "").toUpperCase())
+    ? ((c ?? "").toUpperCase() as Currency)
+    : "USD";
 
 const shippingSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -16,7 +22,7 @@ const startSchema = z.object({
     .min(1)
     .max(50),
   shipping: shippingSchema,
-  currency: z.enum(["USD", "GBP"]).default("USD"),
+  currency: z.enum(CURRENCY_CODES).default("USD"),
 });
 
 /** Starts a Stripe Checkout session. Prices are looked up on the server, never trusted from the browser. */
@@ -83,6 +89,6 @@ export const confirmCardCheckout = createServerFn({ method: "GET" })
       paid: s.payment_status === "paid",
       amountTotal: (s.amount_total ?? 0) / 100,
       email: s.customer_details?.email ?? null,
-      currency: (s.currency ?? "usd").toUpperCase() === "GBP" ? ("GBP" as const) : ("USD" as const),
+      currency: toCurrency(s.currency),
     };
   });

@@ -1,6 +1,8 @@
 // Server-only Stripe helpers. Talks to the Stripe REST API directly (no SDK needed).
 // Requires STRIPE_SECRET_KEY in the environment (sk_test_... while testing, sk_live_... in production).
 
+import type { Currency } from "@/config/currency";
+
 const STRIPE_API = "https://api.stripe.com/v1";
 
 function secretKey() {
@@ -53,7 +55,7 @@ export type StripeLineItem = {
 
 export async function createCheckoutSession(opts: {
   items: StripeLineItem[];
-  currency: "USD" | "GBP";
+  currency: Currency;
   email: string;
   origin: string;
   metadata: Record<string, string>;

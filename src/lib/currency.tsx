@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { createServerFn } from "@tanstack/react-start";
-import { CURRENCIES, DEFAULT_CURRENCY, GBP_COUNTRIES, type Currency } from "@/config/currency";
+import { COUNTRY_CURRENCY, CURRENCIES, DEFAULT_CURRENCY, type Currency } from "@/config/currency";
 
 export type { Currency };
 
@@ -32,7 +32,7 @@ export const getVisitorCurrency = createServerFn({ method: "GET" }).handler(asyn
     getRequestHeader("cf-ipcountry") ||
     ""
   ).toUpperCase();
-  const currency: Currency = GBP_COUNTRIES.includes(country) ? "GBP" : DEFAULT_CURRENCY;
+  const currency: Currency = COUNTRY_CURRENCY[country] ?? DEFAULT_CURRENCY;
   return { currency, country: country || null };
 });
 
