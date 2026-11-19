@@ -5,7 +5,8 @@ const STRIPE_API = "https://api.stripe.com/v1";
 
 function secretKey() {
   const key = process.env["STRIPE_SECRET_KEY"];
-  if (!key) throw new Error("Card payments aren't set up yet. Please choose Bitcoin or contact us.");
+  if (!key)
+    throw new Error("Card payments aren't set up yet. Please choose Bitcoin or contact us.");
   return key;
 }
 
@@ -20,8 +21,13 @@ function encode(obj: Record<string, unknown>, prefix = "", out = new URLSearchPa
   return out;
 }
 
-async function stripe<T>(method: "GET" | "POST", path: string, params?: Record<string, unknown>): Promise<T> {
-  const url = method === "GET" && params ? `${STRIPE_API}${path}?${encode(params)}` : `${STRIPE_API}${path}`;
+async function stripe<T>(
+  method: "GET" | "POST",
+  path: string,
+  params?: Record<string, unknown>,
+): Promise<T> {
+  const url =
+    method === "GET" && params ? `${STRIPE_API}${path}?${encode(params)}` : `${STRIPE_API}${path}`;
   const res = await fetch(url, {
     method,
     headers: {
@@ -38,10 +44,16 @@ async function stripe<T>(method: "GET" | "POST", path: string, params?: Record<s
   return data;
 }
 
-export type StripeLineItem = { name: string; unitAmountCents: number; quantity: number; image?: string | undefined };
+export type StripeLineItem = {
+  name: string;
+  unitAmountCents: number;
+  quantity: number;
+  image?: string | undefined;
+};
 
 export async function createCheckoutSession(opts: {
   items: StripeLineItem[];
+  currency: "USD" | "GBP";
   email: string;
   origin: string;
   metadata: Record<string, string>;
@@ -52,7 +64,7 @@ export async function createCheckoutSession(opts: {
     line_items: opts.items.map((i) => ({
       quantity: i.quantity,
       price_data: {
-        currency: "usd",
+        currency: opts.currency.toLowerCase(),
         unit_amount: i.unitAmountCents,
         product_data: { name: i.name, ...(i.image ? { images: [i.image] } : {}) },
       },
@@ -71,6 +83,7 @@ export async function retrieveCheckoutSession(id: string) {
     id: string;
     payment_status: "paid" | "unpaid" | "no_payment_required";
     amount_total: number | null;
+    currency: string | null;
     customer_details: { email: string | null; name: string | null } | null;
     metadata: Record<string, string>;
   }>("GET", `/checkout/sessions/${encodeURIComponent(id)}`);

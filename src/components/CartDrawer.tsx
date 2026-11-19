@@ -1,10 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2, X } from "lucide-react";
-import { formatPrice, getProduct } from "@/data/products";
+import { getProduct } from "@/data/products";
+import { useCurrency } from "@/lib/currency";
 import { useCart } from "@/lib/shop";
 
 export function CartDrawer() {
   const { lines, open, setOpen, setQty, remove, subtotal } = useCart();
+  const { price } = useCurrency();
 
   return (
     <>
@@ -23,7 +25,11 @@ export function CartDrawer() {
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="font-display text-sm uppercase tracking-[0.2em] text-silver">Your Cart</h2>
-          <button onClick={() => setOpen(false)} aria-label="Close cart" className="text-muted-foreground hover:text-silver">
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Close cart"
+            className="text-muted-foreground hover:text-silver"
+          >
             <X size={18} />
           </button>
         </div>
@@ -38,10 +44,15 @@ export function CartDrawer() {
               if (!p) return null;
               return (
                 <li key={line.id} className="flex gap-3 border-b border-border pb-4">
-                  <img src={p.image} alt={p.name} loading="lazy" className="h-20 w-20 object-cover" />
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    loading="lazy"
+                    className="h-20 w-20 object-cover"
+                  />
                   <div className="flex-1">
                     <p className="font-display text-xs leading-tight">{p.name}</p>
-                    <p className="mt-1 text-xs text-brushed">{formatPrice(p.price)}</p>
+                    <p className="mt-1 text-xs text-brushed">{price(p.price)}</p>
                     <div className="mt-2 flex items-center gap-2">
                       <button
                         onClick={() => setQty(line.id, line.qty - 1)}
@@ -76,7 +87,7 @@ export function CartDrawer() {
         <div className="border-t border-border px-5 py-4">
           <div className="mb-3 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-display text-brushed">{formatPrice(subtotal)}</span>
+            <span className="font-display text-brushed">{price(subtotal)}</span>
           </div>
           <p className="mb-3 text-[11px] text-muted-foreground">
             Discreet packaging. Billed as CC Lifestyle.

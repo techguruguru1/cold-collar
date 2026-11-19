@@ -3,7 +3,8 @@ import { Heart, Lock, Sparkles, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { Stars } from "@/components/Stars";
 import { ProductCard } from "@/components/ProductCard";
-import { averageRating, formatPrice, getProduct, reviewsFor } from "@/data/products";
+import { averageRating, getProduct, reviewsFor } from "@/data/products";
+import { useCurrency } from "@/lib/currency";
 import { useAuth, useCart, useWishlist } from "@/lib/shop";
 
 export const Route = createFileRoute("/product/$productId")({
@@ -15,7 +16,10 @@ export const Route = createFileRoute("/product/$productId")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Product unavailable — Cold Collar" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Product unavailable — Cold Collar" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const { product } = loaderData;
@@ -33,6 +37,7 @@ export const Route = createFileRoute("/product/$productId")({
 
 function ProductPage() {
   const { product } = Route.useLoaderData();
+  const { price } = useCurrency();
   const { add } = useCart();
   const wishlist = useWishlist();
   const { user } = useAuth();
@@ -83,8 +88,10 @@ function ProductPage() {
               {rating} average · {reviews.length} verified reviews
             </span>
           </div>
-          <p className="mt-6 font-display text-3xl text-brushed">{formatPrice(product.price)}</p>
-          <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+          <p className="mt-6 font-display text-3xl text-brushed">{price(product.price)}</p>
+          <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+            {product.description}
+          </p>
 
           <div className="mt-8 flex gap-3">
             <button
@@ -101,7 +108,10 @@ function ProductPage() {
               aria-label="Add to wishlist"
               className="btn-outline-silver px-5 py-4"
             >
-              <Heart size={16} className={wishlist.has(product.id) ? "fill-ember text-ember" : ""} />
+              <Heart
+                size={16}
+                className={wishlist.has(product.id) ? "fill-ember text-ember" : ""}
+              />
             </button>
           </div>
           <Link
@@ -115,7 +125,9 @@ function ProductPage() {
 
           <dl className="mt-10 space-y-5 border-t border-border pt-8 text-sm">
             <div>
-              <dt className="text-[11px] uppercase tracking-[0.2em] text-silver">Materials & Spec</dt>
+              <dt className="text-[11px] uppercase tracking-[0.2em] text-silver">
+                Materials & Spec
+              </dt>
               <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">{product.spec}</dd>
             </div>
             <div>
@@ -123,21 +135,27 @@ function ProductPage() {
               <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">{product.care}</dd>
             </div>
             <div>
-              <dt className="text-[11px] uppercase tracking-[0.2em] text-silver">Sizing & Adjustability</dt>
-              <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">{product.sizing}</dd>
+              <dt className="text-[11px] uppercase tracking-[0.2em] text-silver">
+                Sizing & Adjustability
+              </dt>
+              <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                {product.sizing}
+              </dd>
             </div>
             {product.sizeGuide && (
               <div>
                 <dt className="text-[11px] uppercase tracking-[0.2em] text-silver">Size Guide</dt>
-                <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">{product.sizeGuide}</dd>
+                <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {product.sizeGuide}
+                </dd>
               </div>
             )}
           </dl>
 
           <div className="mt-8 space-y-2 border-t border-border pt-6 text-xs text-muted-foreground">
             <p className="flex items-center gap-2">
-              <Truck size={14} className="text-silver" /> Ships in unmarked packaging with no product
-              wording on the label.
+              <Truck size={14} className="text-silver" /> Ships in unmarked packaging with no
+              product wording on the label.
             </p>
             <p className="flex items-center gap-2">
               <Lock size={14} className="text-silver" /> Charges appear as “CC Lifestyle” on your

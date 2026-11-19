@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { derivedStatus, useAuth } from "@/lib/shop";
-import { formatPrice, getProduct } from "@/data/products";
+import { getProduct } from "@/data/products";
+import { formatMoney, isCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -25,6 +26,7 @@ type OrderRow = {
   total: number;
   status: string;
   items: { id: string; qty: number }[];
+  shipping: { currency?: string } | null;
 };
 
 const STEPS = ["Order Placed", "Processing", "Shipped"] as const;
@@ -44,7 +46,7 @@ function AccountPage() {
     const load = async () => {
       const { data } = await supabase
         .from("orders")
-        .select("id, created_at, total, status, items")
+        .select("id, created_at, total, status, items, shipping")
         .order("created_at", { ascending: false });
       if (cancelled) return;
       const rows = (data ?? []) as unknown as OrderRow[];
@@ -66,7 +68,8 @@ function AccountPage() {
     };
   }, [user]);
 
-  if (loading) return <p className="px-4 py-24 text-center text-sm text-muted-foreground">Loading…</p>;
+  if (loading)
+    return <p className="px-4 py-24 text-center text-sm text-muted-foreground">Loading…</p>;
 
   if (!user) {
     return (
@@ -137,16 +140,24 @@ function AccountPage() {
                       {new Date(o.created_at).toLocaleString()}
                     </p>
                   </div>
-                  <p className="font-display text-brushed">{formatPrice(Number(o.total))}</p>
+                  <p className="font-display text-brushed">
+                    {formatMoney(
+                      Number(o.total),
+                      isCurrency(o.shipping?.currency) ? o.shipping.currency : "USD",
+                    )}
+                  </p>
                 </div>
 
                 <div className="mt-5 flex items-center gap-2">
                   {STEPS.map((s) => {
-                    const done = STEPS.indexOf(s) <= STEPS.indexOf(status as (typeof STEPS)[number]);
+                    const done =
+                      STEPS.indexOf(s) <= STEPS.indexOf(status as (typeof STEPS)[number]);
                     return (
                       <div key={s} className="flex-1">
                         <div className={`h-0.5 ${done ? "bg-silver" : "bg-border"}`} />
-                        <p className={`mt-2 text-[10px] uppercase tracking-[0.14em] ${done ? "text-silver" : "text-muted-foreground"}`}>
+                        <p
+                          className={`mt-2 text-[10px] uppercase tracking-[0.14em] ${done ? "text-silver" : "text-muted-foreground"}`}
+                        >
                           {s}
                         </p>
                       </div>

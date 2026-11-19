@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, TriangleAlert } from "lucide-react";
-import { formatPrice } from "@/data/products";
+import { formatMoney, type Currency } from "@/lib/currency";
 import { useAuth, useCart } from "@/lib/shop";
 import { supabase } from "@/integrations/supabase/client";
 import { confirmCardCheckout } from "@/lib/stripe.functions";
@@ -12,17 +12,14 @@ export const Route = createFileRoute("/checkout_/success")({
     session_id: typeof search["session_id"] === "string" ? search["session_id"] : undefined,
   }),
   head: () => ({
-    meta: [
-      { title: "Payment Received — Cold Collar" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Payment Received — Cold Collar" }, { name: "robots", content: "noindex" }],
   }),
   component: CheckoutSuccess,
 });
 
 type State =
   | { status: "loading" }
-  | { status: "paid"; ref: string; amount: number; email: string | null }
+  | { status: "paid"; ref: string; amount: number; currency: Currency; email: string | null }
   | { status: "unpaid" }
   | { status: "error"; message: string };
 
@@ -66,7 +63,12 @@ function CheckoutSuccess() {
             user_id: user.id,
             items: pending.lines,
             total: s.amountTotal,
-            shipping: { ...pending.shipping, payment_method: "Card (Stripe)", stripe_session: s.id },
+            shipping: {
+              ...pending.shipping,
+              payment_method: "Card (Stripe)",
+              stripe_session: s.id,
+              currency: s.currency,
+            },
             status: "Paid",
           });
           if (error) console.error("[checkout] couldn't save order history:", error.message);
@@ -78,7 +80,13 @@ function CheckoutSuccess() {
           // ignore
         }
 
-        setState({ status: "paid", ref: s.id.slice(-8).toUpperCase(), amount: s.amountTotal, email: s.email });
+        setState({
+          status: "paid",
+          ref: s.id.slice(-8).toUpperCase(),
+          amount: s.amountTotal,
+          currency: s.currency,
+          email: s.email,
+        });
       } catch (err) {
         setState({
           status: "error",
@@ -90,19 +98,26 @@ function CheckoutSuccess() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-24 text-center">
-      {state.status === "loading" && <p className="text-sm text-muted-foreground">Confirming your payment…</p>}
+      {state.status === "loading" && (
+        <p className="text-sm text-muted-foreground">Confirming your payment…</p>
+      )}
 
       {state.status === "paid" && (
         <>
           <Check size={32} className="mx-auto text-silver" />
           <h1 className="mt-6 font-display text-3xl">Payment Received</h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Thank you. {formatPrice(state.amount)} was paid and your order is confirmed. Reference #{state.ref}.
+            Thank you. {formatMoney(state.amount, state.currency)} was paid and your order is
+            confirmed. Reference #{state.ref}.
           </p>
           {state.email && (
-            <p className="mt-2 text-xs text-muted-foreground">A receipt is on its way to {state.email}.</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              A receipt is on its way to {state.email}.
+            </p>
           )}
-          <p className="mt-3 text-xs text-muted-foreground">Shipped in unmarked packaging. Billed as CC Lifestyle.</p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Shipped in unmarked packaging. Billed as CC Lifestyle.
+          </p>
           <div className="mt-8 flex justify-center gap-3">
             {user ? (
               <Link to="/account" className="btn-silver px-7 py-3 text-xs">

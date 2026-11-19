@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import { useAuth, useCart } from "@/lib/shop";
+import { CurrencySwitcher } from "@/lib/currency";
 
 const NAV = [
   { to: "/", label: "Home" },
@@ -61,7 +62,12 @@ export function Header() {
         </form>
 
         <div className="ml-auto flex items-center gap-1 md:ml-2">
-          <Link to="/wishlist" aria-label="Wishlist" className="p-2 text-muted-foreground hover:text-silver">
+          <CurrencySwitcher className="mr-1" />
+          <Link
+            to="/wishlist"
+            aria-label="Wishlist"
+            className="p-2 text-muted-foreground hover:text-silver"
+          >
             <Heart size={18} />
           </Link>
           <Link
@@ -95,7 +101,10 @@ export function Header() {
 
       {menu && (
         <div className="border-t border-border bg-background px-4 py-4 lg:hidden">
-          <form onSubmit={submit} className="mb-4 flex items-center gap-2 border border-border bg-input px-3 py-2">
+          <form
+            onSubmit={submit}
+            className="mb-4 flex items-center gap-2 border border-border bg-input px-3 py-2"
+          >
             <Search size={14} className="text-muted-foreground" />
             <input
               value={q}

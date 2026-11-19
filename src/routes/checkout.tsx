@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, CreditCard, Lock } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice, getProduct } from "@/data/products";
+import { getProduct } from "@/data/products";
+import { useCurrency } from "@/lib/currency";
 import { useAuth, useCart } from "@/lib/shop";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -25,12 +26,13 @@ export const Route = createFileRoute("/checkout")({
       { title: "Checkout — Cold Collar" },
       {
         name: "description",
-        content: "Three-step Cold Collar checkout: shipping, payment details and confirmation. Guest checkout available.",
+        content:
+          "Three-step Cold Collar checkout: shipping, payment details and confirmation. Guest checkout available.",
       },
       { property: "og:title", content: "Checkout — Cold Collar" },
       { property: "og:description", content: "Secure, discreet Cold Collar checkout." },
-       { property: "og:type", content: "website" },
-       { name: "twitter:card", content: "summary" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Checkout,
@@ -47,6 +49,7 @@ type Shipping = {
 
 function Checkout() {
   const { lines, subtotal, clear } = useCart();
+  const { currency, price, convert } = useCurrency();
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [placed, setPlaced] = useState<string | null>(null);
@@ -84,10 +87,13 @@ function Checkout() {
   const payByCard = async () => {
     setBusy(true);
     try {
-      const { url } = await startCardCheckout({ data: { lines, shipping: ship } });
+      const { url } = await startCardCheckout({ data: { lines, shipping: ship, currency } });
       // Remember the order so the success page can save it to the customer's history.
       try {
-        sessionStorage.setItem(PENDING_CARD_ORDER_KEY, JSON.stringify({ lines, total: subtotal, shipping: ship }));
+        sessionStorage.setItem(
+          PENDING_CARD_ORDER_KEY,
+          JSON.stringify({ lines, total: convert(subtotal), shipping: ship, currency }),
+        );
       } catch {
         // storage unavailable; order still goes through Stripe
       }
@@ -109,8 +115,8 @@ function Checkout() {
         .insert({
           user_id: user.id,
           items: lines,
-          total: subtotal,
-          shipping: { ...ship, payment_method: getPaymentMethod(payMethod).label },
+          total: convert(subtotal),
+          shipping: { ...ship, payment_method: getPaymentMethod(payMethod).label, currency },
           status: "Order Placed",
         })
         .select("id")
@@ -134,19 +140,25 @@ function Checkout() {
         <Check size={32} className="mx-auto text-silver" />
         <h1 className="mt-6 font-display text-3xl">Order Placed</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Reference #{placed.slice(0, 8).toUpperCase()}. Your order moves to Processing shortly, then
-          Shipped.
+          Reference #{placed.slice(0, 8).toUpperCase()}. Your order moves to Processing shortly,
+          then Shipped.
         </p>
         <p className="mt-3 text-xs text-muted-foreground">
           Shipped in unmarked packaging. Billed as CC Lifestyle.
         </p>
         <div className="card-surface mt-8 p-6 text-left">
-          <h2 className="font-display text-lg">Complete payment · {getPaymentMethod(payMethod === "card" ? "bitcoin" : payMethod).label}</h2>
+          <h2 className="font-display text-lg">
+            Complete payment ·{" "}
+            {getPaymentMethod(payMethod === "card" ? "bitcoin" : payMethod).label}
+          </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Include reference #{placed.slice(0, 8).toUpperCase()} when you message us.
           </p>
           <div className="mt-5">
-            <PaymentMethodDetails method={getPaymentMethod(payMethod === "card" ? "bitcoin" : payMethod)} amount={formatPrice(placedTotal)} />
+            <PaymentMethodDetails
+              method={getPaymentMethod(payMethod === "card" ? "bitcoin" : payMethod)}
+              amount={price(placedTotal)}
+            />
           </div>
           <div className="mt-6 border-t border-border pt-6">
             <ContactButtons />
@@ -237,10 +249,22 @@ function Checkout() {
           {step === 2 && (
             <div className="card-surface space-y-4 p-6">
               <h2 className="font-display text-xl">Payment</h2>
-              <div role="radiogroup" aria-label="Payment method" className="grid gap-2 sm:grid-cols-2">
+              <div
+                role="radiogroup"
+                aria-label="Payment method"
+                className="grid gap-2 sm:grid-cols-2"
+              >
                 {[
-                  { id: "card" as const, label: "Card", icon: <CreditCard aria-hidden="true" size={18} /> },
-                  ...ACTIVE_PAYMENT_METHODS.map((m) => ({ id: m.id, label: m.label, icon: m.icon })),
+                  {
+                    id: "card" as const,
+                    label: "Card",
+                    icon: <CreditCard aria-hidden="true" size={18} />,
+                  },
+                  ...ACTIVE_PAYMENT_METHODS.map((m) => ({
+                    id: m.id,
+                    label: m.label,
+                    icon: m.icon,
+                  })),
                 ].map((m) => {
                   const active = payMethod === m.id;
                   return (
@@ -266,16 +290,22 @@ function Checkout() {
                 <div className="flex gap-3 border border-border bg-input p-4 text-sm leading-relaxed text-muted-foreground">
                   <Lock aria-hidden="true" size={18} className="mt-0.5 shrink-0 text-silver" />
                   <p>
-                    Pay {formatPrice(subtotal)} by credit or debit card (and Apple Pay or Google Pay where
-                    available). After you review your order you'll enter your card on Stripe's secure payment
-                    page. We never see or store your card details.
+                    Pay {price(subtotal)} by credit or debit card (and Apple Pay or Google Pay where
+                    available). After you review your order you'll enter your card on Stripe's
+                    secure payment page. We never see or store your card details.
                   </p>
                 </div>
               ) : (
-                <PaymentMethodDetails method={getPaymentMethod(payMethod)} amount={formatPrice(subtotal)} />
+                <PaymentMethodDetails
+                  method={getPaymentMethod(payMethod)}
+                  amount={price(subtotal)}
+                />
               )}
               <div className="flex gap-3">
-                <button onClick={() => setStep(1)} className="btn-outline-silver flex-1 py-3 text-xs">
+                <button
+                  onClick={() => setStep(1)}
+                  className="btn-outline-silver flex-1 py-3 text-xs"
+                >
                   Back
                 </button>
                 <button onClick={() => setStep(3)} className="btn-silver flex-1 py-3 text-xs">
@@ -306,7 +336,10 @@ function Checkout() {
                   : "Your order will be recorded as Order Placed while payment confirmation is pending."}
               </p>
               <div className="flex gap-3">
-                <button onClick={() => setStep(2)} className="btn-outline-silver flex-1 py-3 text-xs">
+                <button
+                  onClick={() => setStep(2)}
+                  className="btn-outline-silver flex-1 py-3 text-xs"
+                >
                   Back
                 </button>
                 <button
@@ -317,7 +350,7 @@ function Checkout() {
                   {payMethod === "card"
                     ? busy
                       ? "Opening secure payment…"
-                      : `Pay ${formatPrice(subtotal)}`
+                      : `Pay ${price(subtotal)}`
                     : busy
                       ? "Placing…"
                       : "Place Order"}
@@ -338,14 +371,14 @@ function Checkout() {
                   <span className="text-muted-foreground">
                     {p.name} × {l.qty}
                   </span>
-                  <span>{formatPrice(p.price * l.qty)}</span>
+                  <span>{price(p.price * l.qty)}</span>
                 </li>
               );
             })}
           </ul>
           <div className="mt-5 flex justify-between border-t border-border pt-4 text-sm">
             <span className="text-muted-foreground">Total</span>
-            <span className="font-display text-brushed">{formatPrice(subtotal)}</span>
+            <span className="font-display text-brushed">{price(subtotal)}</span>
           </div>
         </aside>
       </div>

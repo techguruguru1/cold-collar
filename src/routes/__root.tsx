@@ -13,6 +13,7 @@ import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { ShopProvider } from "@/lib/shop";
+import { CurrencyProvider, getVisitorCurrency } from "@/lib/currency";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -94,6 +95,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
+  // Works out pounds vs dollars once per visit (from a saved choice or the visitor's country).
+  loader: () => getVisitorCurrency(),
+  staleTime: Infinity,
+  shouldReload: false,
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -116,22 +121,25 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { currency } = Route.useLoaderData();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ShopProvider>
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1">
-            {/* Required: nested routes render here. */}
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-        <CartDrawer />
-        <AgeGate />
-        <Toaster theme="dark" position="bottom-right" />
-      </ShopProvider>
+      <CurrencyProvider initial={currency}>
+        <ShopProvider>
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1">
+              {/* Required: nested routes render here. */}
+              <Outlet />
+            </main>
+            <Footer />
+          </div>
+          <CartDrawer />
+          <AgeGate />
+          <Toaster theme="dark" position="bottom-right" />
+        </ShopProvider>
+      </CurrencyProvider>
     </QueryClientProvider>
   );
 }

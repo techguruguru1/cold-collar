@@ -7,4 +7,5 @@ export type PendingCardOrder = {
   lines: CartLine[];
   total: number;
   shipping: Record<string, string>;
+  currency?: "USD" | "GBP" | undefined;
 };

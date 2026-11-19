@@ -2,11 +2,13 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Stars } from "@/components/Stars";
-import { averageRating, formatPrice, reviewsFor, type Product } from "@/data/products";
+import { averageRating, reviewsFor, type Product } from "@/data/products";
+import { useCurrency } from "@/lib/currency";
 import { useAuth, useCart, useWishlist } from "@/lib/shop";
 
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
+  const { price } = useCurrency();
   const wishlist = useWishlist();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -67,7 +69,7 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground">{product.short}</p>
-        <p className="mt-auto pt-2 font-display text-lg text-brushed">{formatPrice(product.price)}</p>
+        <p className="mt-auto pt-2 font-display text-lg text-brushed">{price(product.price)}</p>
         <button
           onClick={() => {
             add(product.id);

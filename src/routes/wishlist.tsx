@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { formatPrice, getProduct } from "@/data/products";
+import { getProduct } from "@/data/products";
+import { useCurrency } from "@/lib/currency";
 import { useAuth, useCart, useWishlist } from "@/lib/shop";
 
 export const Route = createFileRoute("/wishlist")({
@@ -10,10 +11,14 @@ export const Route = createFileRoute("/wishlist")({
       { title: "Your Wishlist — Cold Collar" },
       {
         name: "description",
-        content: "Saved pieces from the Cold Collar collection, ready to move straight into your cart.",
+        content:
+          "Saved pieces from the Cold Collar collection, ready to move straight into your cart.",
       },
       { property: "og:title", content: "Your Wishlist — Cold Collar" },
-      { property: "og:description", content: "Saved Cold Collar pieces, ready to add to your cart." },
+      {
+        property: "og:description",
+        content: "Saved Cold Collar pieces, ready to add to your cart.",
+      },
     ],
   }),
   component: WishlistPage,
@@ -21,6 +26,7 @@ export const Route = createFileRoute("/wishlist")({
 
 function WishlistPage() {
   const { user, loading } = useAuth();
+  const { price } = useCurrency();
   const wishlist = useWishlist();
   const { add } = useCart();
 
@@ -43,7 +49,9 @@ function WishlistPage() {
     );
   }
 
-  const items = wishlist.ids.map((id) => getProduct(id)).filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const items = wishlist.ids
+    .map((id) => getProduct(id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-14 md:px-6">
@@ -59,7 +67,10 @@ function WishlistPage() {
       ) : (
         <ul className="mt-10 space-y-4">
           {items.map((p) => (
-            <li key={p.id} className="card-surface flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+            <li
+              key={p.id}
+              className="card-surface flex flex-col gap-4 p-4 sm:flex-row sm:items-center"
+            >
               <img src={p.image} alt={p.name} loading="lazy" className="h-24 w-24 object-cover" />
               <div className="flex-1">
                 <Link
@@ -70,7 +81,7 @@ function WishlistPage() {
                   {p.name}
                 </Link>
                 <p className="mt-1 text-xs text-muted-foreground">{p.short}</p>
-                <p className="mt-1 font-display text-sm text-brushed">{formatPrice(p.price)}</p>
+                <p className="mt-1 font-display text-sm text-brushed">{price(p.price)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button
