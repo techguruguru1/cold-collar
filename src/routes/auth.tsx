@@ -14,7 +14,10 @@ export const Route = createFileRoute("/auth")({
           "Sign in to Cold Collar to save your wishlist and view order history. Guest checkout is always available.",
       },
       { property: "og:title", content: "Sign In — Cold Collar" },
-      { property: "og:description", content: "Access your Cold Collar wishlist and order history." },
+      {
+        property: "og:description",
+        content: "Access your Cold Collar wishlist and order history.",
+      },
     ],
   }),
   component: AuthPage,
@@ -94,20 +97,30 @@ function AuthPage() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="text-[11px] uppercase tracking-[0.2em] text-silver">
+            <label
+              htmlFor="password"
+              className="text-[11px] uppercase tracking-[0.2em] text-silver"
+            >
               Password
             </label>
             <input
               id="password"
               type="password"
               required
-              minLength={6}
+              minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-2 w-full border border-border bg-input px-4 py-3 text-sm outline-none focus:border-silver"
             />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              At least 8 characters. Letters, numbers or both.
+            </p>
           </div>
-          <button disabled={busy} type="submit" className="btn-silver w-full py-3 text-xs disabled:opacity-60">
+          <button
+            disabled={busy}
+            type="submit"
+            className="btn-silver w-full py-3 text-xs disabled:opacity-60"
+          >
             {busy ? "Please wait…" : mode === "login" ? "Sign In" : "Create Account"}
           </button>
           <button
