@@ -73,7 +73,6 @@ export function ProductCard({ product }: { product: Product }) {
         <button
           onClick={() => {
             add(product.id);
-            toast(`${product.name} added to cart`);
           }}
           className="btn-steel mt-1 w-full py-2.5 text-xs"
         >

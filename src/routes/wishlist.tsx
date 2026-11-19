@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { getProduct } from "@/data/products";
 import { useCurrency } from "@/lib/currency";
 import { useAuth, useCart, useWishlist } from "@/lib/shop";
@@ -87,7 +86,6 @@ function WishlistPage() {
                 <button
                   onClick={() => {
                     add(p.id);
-                    toast(`${p.name} added to cart`);
                   }}
                   className="btn-steel px-5 py-2.5 text-xs"
                 >

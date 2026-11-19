@@ -97,7 +97,6 @@ function ProductPage() {
             <button
               onClick={() => {
                 add(product.id);
-                toast(`${product.name} added to cart`);
               }}
               className="btn-steel flex-1 py-4 text-xs"
             >
