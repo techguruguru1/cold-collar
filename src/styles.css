@@ -1,0 +1,236 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Cold Collar design system — dark industrial.
+ * Matte black surfaces, steel-grey structure, brushed silver highlights.
+ */
+
+@theme inline {
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-steel: var(--steel);
+  --color-silver: var(--silver);
+  --color-ember: var(--ember);
+  --font-display: "Chakra Petch", "Arial Narrow", sans-serif;
+  --font-sans: "Barlow", system-ui, sans-serif;
+}
+
+:root {
+  --radius: 3px;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.905 0 0);
+  --card: oklch(0.195 0 0);
+  --card-foreground: oklch(0.905 0 0);
+  --popover: oklch(0.185 0 0);
+  --popover-foreground: oklch(0.905 0 0);
+  --primary: oklch(0.812 0 0);
+  --primary-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.545 0.011 236);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.245 0 0);
+  --muted-foreground: oklch(0.68 0.008 236);
+  --accent: oklch(0.29 0.006 236);
+  --accent-foreground: oklch(0.93 0 0);
+  --destructive: oklch(0.55 0.18 25);
+  --destructive-foreground: oklch(0.97 0 0);
+  --border: oklch(0.3 0.004 236);
+  --input: oklch(0.27 0.004 236);
+  --ring: oklch(0.62 0.01 236);
+  --steel: oklch(0.545 0.011 236);
+  --silver: oklch(0.812 0 0);
+  --ember: oklch(0.55 0.19 25);
+  --gradient-silver: linear-gradient(
+    120deg,
+    oklch(0.68 0 0) 0%,
+    oklch(0.9 0 0) 35%,
+    oklch(0.74 0 0) 60%,
+    oklch(0.93 0 0) 100%
+  );
+  --shadow-card: 0 20px 45px -25px oklch(0 0 0 / 0.9);
+  --shadow-lift: 0 30px 60px -25px oklch(0 0 0 / 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Brushed silver text + surfaces */
+@utility text-brushed {
+  background: var(--gradient-silver);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility btn-silver {
+  background: var(--gradient-silver);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+  &:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 0 28px -8px oklch(0.85 0 0 / 0.5);
+  }
+}
+
+@utility btn-outline-silver {
+  border: 1px solid var(--silver);
+  color: var(--silver);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+  &:hover {
+    background: color-mix(in oklab, var(--silver) 12%, transparent);
+  }
+}
+
+@utility btn-steel {
+  background: var(--steel);
+  color: oklch(0.98 0 0);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+  &:hover {
+    background: color-mix(in oklab, var(--steel) 80%, white);
+  }
+}
+
+@utility card-surface {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+
+@utility product-card {
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+  &:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-lift);
+    border-color: color-mix(in oklab, var(--silver) 45%, transparent);
+  }
+}
+
+/* Hero background: slow drifting metallic shimmer + smoke */
+@utility hero-shimmer {
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 20% 30%, oklch(0.7 0.01 236 / 0.16), transparent 70%),
+    radial-gradient(50% 40% at 80% 60%, oklch(0.85 0 0 / 0.1), transparent 70%),
+    linear-gradient(115deg, transparent 40%, oklch(0.9 0 0 / 0.06) 50%, transparent 60%);
+  background-size:
+    140% 140%,
+    140% 140%,
+    240% 240%;
+  animation: drift 38s ease-in-out infinite alternate;
+  opacity: 0.9;
+}
+
+@utility hero-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(oklch(0.9 0 0 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.9 0 0 / 0.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent 85%);
+}
+
+@keyframes drift {
+  0% {
+    background-position:
+      0% 0%,
+      100% 100%,
+      0% 50%;
+  }
+  50% {
+    background-position:
+      40% 30%,
+      60% 70%,
+      100% 50%;
+  }
+  100% {
+    background-position:
+      100% 60%,
+      0% 20%,
+      0% 50%;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* Hide third-party hosting badges */
+#lovable-badge,
+.lovable-badge,
+[data-lovable-badge],
+a[href*="lovable.dev"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
