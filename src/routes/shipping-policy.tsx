@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageShell, Section } from "@/components/Prose";
+import { PageShell, PolicyContact, PolicyLink, Section } from "@/components/Prose";
 
 export const Route = createFileRoute("/shipping-policy")({
   head: () => ({
@@ -8,10 +8,13 @@ export const Route = createFileRoute("/shipping-policy")({
       {
         name: "description",
         content:
-          "Cold Collar shipping times, discreet packaging standards and country and state restrictions on adult products.",
+          "Cold Collar shipping times, discreet packaging, tracking, address changes and country restrictions on adult products.",
       },
       { property: "og:title", content: "Shipping Policy — Cold Collar" },
-      { property: "og:description", content: "Discreet packaging, delivery times and shipping restrictions." },
+      {
+        property: "og:description",
+        content: "Discreet packaging, delivery times and shipping restrictions.",
+      },
     ],
   }),
   component: ShippingPolicy,
@@ -19,38 +22,69 @@ export const Route = createFileRoute("/shipping-policy")({
 
 function ShippingPolicy() {
   return (
-    <PageShell title="Shipping Policy" intro="How, when and where we ship.">
+    <PageShell title="Shipping Policy" intro="How, when and where we ship." updated>
       <Section heading="Processing and Delivery">
         <p>
-          Orders are prepared within 1–2 business days. Standard delivery takes 3–7 business days
-          domestically and 7–21 business days internationally. Tracking is emailed on dispatch.
+          Orders are prepared within 1 to 2 business days of payment being confirmed. Standard
+          delivery then takes 3 to 7 business days within the country of dispatch and 7 to 21
+          business days internationally. Special orders take longer; we confirm the timing with you
+          before you pay.
         </p>
       </Section>
+
+      <Section heading="Tracking">
+        <p>
+          We email you a tracking number when your order ships. If you have not received it within 3
+          business days of ordering, please check your spam folder or contact us.
+        </p>
+      </Section>
+
       <Section heading="Discreet Packaging">
         <p>
-          Everything ships in a plain outer box or mailer. No product names, imagery or category
-          descriptions appear on the outside, and the sender name is generic. Customs declarations use
-          neutral wording such as “lifestyle accessories”.
+          Everything ships in a plain outer box or mailer. No product names, images or descriptions
+          appear on the outside, and the sender name is generic. Customs forms use neutral wording
+          such as "lifestyle accessories".
         </p>
       </Section>
+
+      <Section heading="Delivery Address">
+        <p>
+          Please check your address carefully at checkout. Contact us straight away if it is wrong.
+          We can change it until the order ships. We are not responsible for parcels sent to an
+          incorrect address given at checkout, but we will help you try to recover them.
+        </p>
+      </Section>
+
       <Section heading="Country and State Restrictions">
         <p>
-          Adult products are restricted or prohibited in some jurisdictions. We cannot ship to
-          countries where the import of adult lifestyle goods is unlawful, and certain US states and
-          municipalities apply additional restrictions to specific product categories.
+          Adult products are restricted or banned in some places. We do not ship to countries where
+          importing adult lifestyle goods is against the law, and some US states and local areas
+          restrict certain products.
         </p>
         <p>
-          It is the buyer's responsibility to confirm that an item may lawfully be imported to their
-          delivery address. Where a shipment is seized or refused by customs, we cannot refund the
-          order or the shipping cost.
+          Please make sure the items you order can legally be delivered to your address. If customs
+          seize or return a parcel because the goods are not allowed in your country, we cannot
+          refund the order or the shipping cost.
         </p>
       </Section>
+
       <Section heading="Duties and Taxes">
         <p>
-          International orders may attract import duty or local sales tax payable on delivery. These
-          charges are set by your local authority and are not included in our prices.
+          International orders may be charged import duty or local sales tax on arrival. These are
+          set by your country's authorities, are not included in our prices and are paid by the
+          person receiving the parcel.
         </p>
       </Section>
+
+      <Section heading="Late or Lost Orders">
+        <p>
+          If your order has not arrived within the times above, contact us. Our{" "}
+          <PolicyLink to="/returns">Returns &amp; Refund Policy</PolicyLink> explains how we handle
+          lost parcels.
+        </p>
+      </Section>
+
+      <PolicyContact />
     </PageShell>
   );
 }

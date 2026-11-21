@@ -54,6 +54,7 @@ function Checkout() {
   const [step, setStep] = useState(1);
   const [placed, setPlaced] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [payMethod, setPayMethod] = useState<PaymentMethodId | "card">("card");
   const { canceled } = Route.useSearch();
   useEffect(() => {
@@ -335,6 +336,29 @@ function Checkout() {
                   ? "You'll be taken to Stripe's secure page to pay. Your order is confirmed as soon as payment goes through."
                   : "Your order will be recorded as Order Placed while payment confirmation is pending."}
               </p>
+              <label className="flex cursor-pointer items-start gap-3 border border-border bg-input p-4 text-xs leading-relaxed text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(0_0%_75%)]"
+                />
+                <span>
+                  I confirm I am 18 or older and I agree to the{" "}
+                  <Link to="/terms" target="_blank" className="text-silver underline">
+                    Terms of Service
+                  </Link>
+                  ,{" "}
+                  <Link to="/returns" target="_blank" className="text-silver underline">
+                    Returns &amp; Refund Policy
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/privacy" target="_blank" className="text-silver underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
               <div className="flex gap-3">
                 <button
                   onClick={() => setStep(2)}
@@ -343,7 +367,8 @@ function Checkout() {
                   Back
                 </button>
                 <button
-                  disabled={busy}
+                  disabled={busy || !agreed}
+                  title={agreed ? undefined : "Tick the box above to continue"}
                   onClick={() => void (payMethod === "card" ? payByCard() : placeOrder())}
                   className="btn-silver flex-1 py-3 text-xs disabled:opacity-60"
                 >

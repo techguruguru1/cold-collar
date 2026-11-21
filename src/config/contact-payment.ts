@@ -1,6 +1,22 @@
 // All customer-facing contact and payment details live here.
 // TODO: replace the Cash App, PayPal and Zelle placeholders with the real details.
 export const CONTACT_PAYMENT = {
+  business: {
+    // Shown on the Terms, Privacy, Returns and Shipping pages. Card processors check these.
+    // Leave a field empty ("") to hide it.
+    // The registered business name (or the owner's full name for a sole trader).
+    legalName: "",
+    // An email address customers can write to for orders, refunds and privacy requests.
+    email: "",
+    // Business or mailing address.
+    address: "",
+    // Whose laws the Terms follow, e.g. "the State of Florida, USA" or "England and Wales".
+    governingLaw: "",
+    // The name customers see on their card statement. Must match what your card processor sets up.
+    statementName: "CC Lifestyle",
+    // Change this date whenever you edit the policy pages.
+    policiesUpdated: "21 November 2026",
+  },
   signal: {
     display: "5619834876",
     href: "https://signal.me/#p/+15619834876",
