@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -122,6 +123,21 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { currency } = Route.useLoaderData();
+  // The admin area is a separate app: no shop header, footer, cart or age check.
+  const isAdmin = useRouterState({
+    select: (s) => s.location.pathname === "/admin" || s.location.pathname.startsWith("/admin/"),
+  });
+
+  if (isAdmin) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <CurrencyProvider initial={currency}>
+          <Outlet />
+          <Toaster theme="dark" position="bottom-right" />
+        </CurrencyProvider>
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

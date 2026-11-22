@@ -23,11 +23,12 @@ export async function isAdminUser(userId: string | null): Promise<boolean> {
   return Boolean(data);
 }
 
-/** Throws unless the request comes from a signed-in admin. */
-export async function requireAdmin(): Promise<string> {
-  const userId = await getUserIdFromRequest();
-  if (!userId) throw new Error("Please sign in.");
-  if (!(await isAdminUser(userId))) throw new Error("You don't have access to this page.");
+/** Throws unless the admin dashboard's access token belongs to an admin. */
+export async function requireAdmin(accessToken: string): Promise<string> {
+  const { data, error } = await supabaseAdmin.auth.getUser(accessToken);
+  const userId = error ? null : (data.user?.id ?? null);
+  if (!userId) throw new Error("Your admin session has ended. Please sign in again.");
+  if (!(await isAdminUser(userId))) throw new Error("This account doesn't have admin access.");
   return userId;
 }
 
