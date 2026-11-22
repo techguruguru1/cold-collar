@@ -14,6 +14,9 @@ import {
 } from "@/components/PaymentMethods";
 import { ContactButtons } from "@/components/ContactButtons";
 import { startCardCheckout } from "@/lib/stripe.functions";
+import { CONTACT_PAYMENT } from "@/config/contact-payment";
+
+const CARD_ENABLED: boolean = CONTACT_PAYMENT.card.enabled;
 
 import { PENDING_CARD_ORDER_KEY } from "@/lib/pending-order";
 
@@ -55,7 +58,9 @@ function Checkout() {
   const [placed, setPlaced] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [payMethod, setPayMethod] = useState<PaymentMethodId | "card">("card");
+  const [payMethod, setPayMethod] = useState<PaymentMethodId | "card">(
+    CARD_ENABLED ? "card" : (ACTIVE_PAYMENT_METHODS[0]?.id ?? "card"),
+  );
   const { canceled } = Route.useSearch();
   useEffect(() => {
     if (canceled) toast("Payment canceled. Your cart is still here.");
@@ -86,6 +91,7 @@ function Checkout() {
   );
 
   const payByCard = async () => {
+    if (!CARD_ENABLED) return;
     setBusy(true);
     try {
       const { url } = await startCardCheckout({ data: { lines, shipping: ship, currency } });
@@ -268,25 +274,37 @@ function Checkout() {
                   })),
                 ].map((m) => {
                   const active = payMethod === m.id;
+                  const unavailable = m.id === "card" && !CARD_ENABLED;
                   return (
                     <button
                       key={m.id}
                       type="button"
                       role="radio"
                       aria-checked={active}
+                      disabled={unavailable}
                       onClick={() => setPayMethod(m.id)}
                       className={`flex min-h-12 items-center justify-center gap-2 border px-3 py-3 text-xs uppercase tracking-[0.14em] transition-colors ${
-                        active
-                          ? "border-silver bg-input text-foreground"
-                          : "border-border text-muted-foreground hover:border-silver/60 hover:text-foreground"
+                        unavailable
+                          ? "cursor-not-allowed border-border text-muted-foreground opacity-50"
+                          : active
+                            ? "border-silver bg-input text-foreground"
+                            : "border-border text-muted-foreground hover:border-silver/60 hover:text-foreground"
                       }`}
                     >
                       {m.icon}
                       {m.label}
+                      {unavailable && (
+                        <span className="normal-case tracking-normal">· Unavailable</span>
+                      )}
                     </button>
                   );
                 })}
               </div>
+              {!CARD_ENABLED && (
+                <p className="text-xs text-muted-foreground">
+                  Card payment is currently unavailable. Please pay with Bitcoin.
+                </p>
+              )}
               {payMethod === "card" ? (
                 <div className="flex gap-3 border border-border bg-input p-4 text-sm leading-relaxed text-muted-foreground">
                   <Lock aria-hidden="true" size={18} className="mt-0.5 shrink-0 text-silver" />

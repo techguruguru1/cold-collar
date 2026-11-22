@@ -17,6 +17,12 @@ export const CONTACT_PAYMENT = {
     // Change this date whenever you edit the policy pages.
     policiesUpdated: "21 November 2026",
   },
+  card: {
+    // false: checkout shows Card as "Unavailable" and it can't be selected, and the server
+    // refuses to start card payments. Set to true once a card processor is approved and its
+    // live key is set in Vercel.
+    enabled: false,
+  },
   signal: {
     display: "5619834876",
     href: "https://signal.me/#p/+15619834876",

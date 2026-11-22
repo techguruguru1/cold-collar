@@ -29,6 +29,9 @@ const startSchema = z.object({
 export const startCardCheckout = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => startSchema.parse(data))
   .handler(async ({ data }) => {
+    const { CONTACT_PAYMENT } = await import("@/config/contact-payment");
+    const cardEnabled: boolean = CONTACT_PAYMENT.card.enabled;
+    if (!cardEnabled) throw new Error("Card payment is currently unavailable.");
     const [{ createCheckoutSession }, { getProduct }, { getRequestUrl }, { convertFromUsd }] =
       await Promise.all([
         import("./stripe.server"),
