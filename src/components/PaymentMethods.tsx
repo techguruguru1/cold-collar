@@ -90,7 +90,7 @@ export const PAYMENT_METHODS: MethodInfo[] = [
     steps: [
       "Scan the QR code with your wallet, or copy the address.",
       "Send the exact BTC amount equal to your order total.",
-      'Tap "I\'ve sent the payment" on your order page and upload a screenshot of the payment. We confirm it after 1 network confirmation.',
+      'Tap "I\'ve sent the payment" below and upload a screenshot of the payment. We confirm it after 1 network confirmation.',
     ],
     warning:
       "Only send Bitcoin (BTC) to this address. Sending any other coin will result in permanent loss.",

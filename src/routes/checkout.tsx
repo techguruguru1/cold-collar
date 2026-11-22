@@ -14,6 +14,7 @@ import {
 import { startCardCheckout } from "@/lib/stripe.functions";
 import { createManualOrder } from "@/lib/orders.functions";
 import { rememberOrder } from "@/lib/recent-orders";
+import { ReceiptDialog } from "@/components/ReceiptDialog";
 import { CONTACT_PAYMENT } from "@/config/contact-payment";
 
 const CARD_ENABLED: boolean = CONTACT_PAYMENT.card.enabled;
@@ -58,6 +59,7 @@ function Checkout() {
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [receiptFor, setReceiptFor] = useState<{ id: string; token: string } | null>(null);
   // Nothing is selected until the customer picks a payment method.
   const [payMethod, setPayMethod] = useState<PaymentMethodId | "card" | null>(null);
   const canContinue = payMethod !== null && !(payMethod === "card" && !CARD_ENABLED);
@@ -110,6 +112,14 @@ function Checkout() {
     }
   };
 
+  // After the receipt pop-up closes (uploaded or not), go to the order page.
+  const finishOrder = async () => {
+    if (!receiptFor) return;
+    const { id, token } = receiptFor;
+    clear();
+    await navigate({ to: "/order/$orderId", params: { orderId: id }, search: { t: token } });
+  };
+
   const placeOrder = async () => {
     if (payMethod === null || payMethod === "card") return;
     setBusy(true);
@@ -118,19 +128,42 @@ function Checkout() {
         data: { lines, shipping: ship, currency, method: payMethod },
       });
       rememberOrder(order.id, order.token);
-      clear();
-      await navigate({
-        to: "/order/$orderId",
-        params: { orderId: order.id },
-        search: { t: order.token },
-      });
+      setReceiptFor(order);
+      setBusy(false);
     } catch (err) {
       setBusy(false);
       toast(err instanceof Error ? err.message : "We couldn't place your order. Please try again.");
     }
   };
 
-  if (lines.length === 0) {
+  const agreement = (
+    <label className="flex cursor-pointer items-start gap-3 border border-border bg-input p-4 text-xs leading-relaxed text-muted-foreground">
+      <input
+        type="checkbox"
+        checked={agreed}
+        onChange={(e) => setAgreed(e.target.checked)}
+        className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(0_0%_75%)]"
+      />
+      <span>
+        I confirm I am 18 or older and I agree to the{" "}
+        <Link to="/terms" target="_blank" className="text-silver underline">
+          Terms of Service
+        </Link>
+        ,{" "}
+        <Link to="/returns" target="_blank" className="text-silver underline">
+          Returns &amp; Refund Policy
+        </Link>{" "}
+        and{" "}
+        <Link to="/privacy" target="_blank" className="text-silver underline">
+          Privacy Policy
+        </Link>
+        .
+      </span>
+    </label>
+  );
+
+  // Keep the checkout on screen while the receipt pop-up is open (the cart is cleared afterwards).
+  if (lines.length === 0 && !receiptFor) {
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">
         <h1 className="font-display text-2xl">Your cart is empty</h1>
@@ -143,6 +176,18 @@ function Checkout() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-14 md:px-6">
+      {receiptFor && (
+        <ReceiptDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) void finishOrder();
+          }}
+          orderId={receiptFor.id}
+          token={receiptFor.token}
+          amount={price(subtotal)}
+          onDone={() => void finishOrder()}
+        />
+      )}
       <h1 className="font-display text-3xl md:text-4xl">Checkout</h1>
 
       <div className="mt-8 flex gap-2">
@@ -258,10 +303,25 @@ function Checkout() {
                   </p>
                 </div>
               ) : payMethod ? (
-                <PaymentMethodDetails
-                  method={getPaymentMethod(payMethod)}
-                  amount={price(subtotal)}
-                />
+                <>
+                  <PaymentMethodDetails
+                    method={getPaymentMethod(payMethod)}
+                    amount={price(subtotal)}
+                  />
+                  {agreement}
+                  <button
+                    type="button"
+                    disabled={busy || !agreed}
+                    title={agreed ? undefined : "Tick the box above to continue"}
+                    onClick={() => void placeOrder()}
+                    className="btn-silver w-full py-3.5 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {busy ? "Please wait…" : "I've Sent the Payment"}
+                  </button>
+                  <p className="text-center text-[11px] text-muted-foreground">
+                    Next, upload a screenshot of your payment so we can confirm it.
+                  </p>
+                </>
               ) : (
                 <p className="text-xs text-muted-foreground">Choose how you'd like to pay.</p>
               )}
@@ -272,13 +332,15 @@ function Checkout() {
                 >
                   Back
                 </button>
-                <button
-                  onClick={() => setStep(3)}
-                  disabled={!canContinue}
-                  className="btn-silver flex-1 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Review Order
-                </button>
+                {(payMethod === null || payMethod === "card") && (
+                  <button
+                    onClick={() => setStep(3)}
+                    disabled={!canContinue}
+                    className="btn-silver flex-1 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Review Order
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -309,29 +371,7 @@ function Checkout() {
                   ? "You'll be taken to Stripe's secure page to pay. Your order is confirmed as soon as payment goes through."
                   : "Next you'll see the address and exact amount to send. After you send it, tap \"I've sent the payment\" and upload your receipt."}
               </p>
-              <label className="flex cursor-pointer items-start gap-3 border border-border bg-input p-4 text-xs leading-relaxed text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0 accent-[hsl(0_0%_75%)]"
-                />
-                <span>
-                  I confirm I am 18 or older and I agree to the{" "}
-                  <Link to="/terms" target="_blank" className="text-silver underline">
-                    Terms of Service
-                  </Link>
-                  ,{" "}
-                  <Link to="/returns" target="_blank" className="text-silver underline">
-                    Returns &amp; Refund Policy
-                  </Link>{" "}
-                  and{" "}
-                  <Link to="/privacy" target="_blank" className="text-silver underline">
-                    Privacy Policy
-                  </Link>
-                  .
-                </span>
-              </label>
+              {agreement}
               <div className="flex gap-3">
                 <button
                   onClick={() => setStep(2)}
