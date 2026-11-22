@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Bitcoin, Check, Copy, DollarSign, ExternalLink, Landmark, TriangleAlert, Wallet } from "lucide-react";
+import {
+  Bitcoin,
+  Check,
+  Copy,
+  DollarSign,
+  ExternalLink,
+  Landmark,
+  TriangleAlert,
+  Wallet,
+} from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { CONTACT_PAYMENT } from "@/config/contact-payment";
 
@@ -81,9 +90,10 @@ export const PAYMENT_METHODS: MethodInfo[] = [
     steps: [
       "Scan the QR code with your wallet, or copy the address.",
       "Send the exact BTC amount equal to your order total.",
-      "Message us on Signal or WhatsApp with your order number and the transaction ID. Your order is confirmed after 1 network confirmation.",
+      'Tap "I\'ve sent the payment" on your order page and upload a screenshot of the payment. We confirm it after 1 network confirmation.',
     ],
-    warning: "Only send Bitcoin (BTC) to this address. Sending any other coin will result in permanent loss.",
+    warning:
+      "Only send Bitcoin (BTC) to this address. Sending any other coin will result in permanent loss.",
   },
 ];
 
@@ -91,7 +101,7 @@ export const PAYMENT_METHODS: MethodInfo[] = [
  * Manual methods shown to customers. Cash App, PayPal and Zelle are switched off for now
  * (card payments go through Stripe). Add their ids back here to show them again.
  */
-const ENABLED_METHODS: PaymentMethodId[] = ["bitcoin"];
+export const ENABLED_METHODS: PaymentMethodId[] = ["bitcoin"];
 export const ACTIVE_PAYMENT_METHODS = PAYMENT_METHODS.filter((m) => ENABLED_METHODS.includes(m.id));
 
 export function getPaymentMethod(id: PaymentMethodId) {
@@ -133,7 +143,13 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   );
 }
 
-export function PaymentMethodDetails({ method, amount }: { method: MethodInfo; amount?: string | undefined }) {
+export function PaymentMethodDetails({
+  method,
+  amount,
+}: {
+  method: MethodInfo;
+  amount?: string | undefined;
+}) {
   return (
     <div>
       {amount && (
@@ -150,7 +166,18 @@ export function PaymentMethodDetails({ method, amount }: { method: MethodInfo; a
             </code>
           </div>
           <div className="mt-3 flex flex-wrap gap-3">
-            <CopyButton value={method.value} label={method.id === "bitcoin" ? "address" : method.id === "zelle" ? "recipient" : method.id === "cashapp" ? "$Cashtag" : "username"} />
+            <CopyButton
+              value={method.value}
+              label={
+                method.id === "bitcoin"
+                  ? "address"
+                  : method.id === "zelle"
+                    ? "recipient"
+                    : method.id === "cashapp"
+                      ? "$Cashtag"
+                      : "username"
+              }
+            />
             {method.openHref && (
               <a
                 href={method.openHref}
@@ -167,7 +194,13 @@ export function PaymentMethodDetails({ method, amount }: { method: MethodInfo; a
 
         {method.qrImage ? (
           <div className="mx-auto border border-border bg-foreground p-3 md:mx-0">
-            <img src={method.qrImage} alt={`${method.label} QR code`} width={176} height={176} className="h-44 w-44 object-contain" />
+            <img
+              src={method.qrImage}
+              alt={`${method.label} QR code`}
+              width={176}
+              height={176}
+              className="h-44 w-44 object-contain"
+            />
           </div>
         ) : method.qrValue ? (
           <div className="mx-auto border border-border bg-foreground p-3 md:mx-0">
@@ -194,7 +227,11 @@ export function PaymentMethodDetails({ method, amount }: { method: MethodInfo; a
 
       {method.warning && (
         <div className="mt-7 flex gap-3 border border-destructive/60 bg-destructive/10 p-4 text-sm leading-relaxed text-foreground">
-          <TriangleAlert aria-hidden="true" size={20} className="mt-0.5 shrink-0 text-destructive" />
+          <TriangleAlert
+            aria-hidden="true"
+            size={20}
+            className="mt-0.5 shrink-0 text-destructive"
+          />
           <p>{method.warning}</p>
         </div>
       )}
@@ -227,7 +264,11 @@ export function PaymentMethods({
       </h2>
       {showTabs && <p className="mt-1 text-xs text-muted-foreground">Choose a payment method.</p>}
 
-      <div role="radiogroup" aria-label="Payment method" className={showTabs ? "mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4" : "hidden"}>
+      <div
+        role="radiogroup"
+        aria-label="Payment method"
+        className={showTabs ? "mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4" : "hidden"}
+      >
         {ACTIVE_PAYMENT_METHODS.map((m) => {
           const active = m.id === selected;
           return (

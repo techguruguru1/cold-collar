@@ -14,33 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      orders: {
+      admins: {
         Row: {
           created_at: string
-          id: string
-          items: Json
-          shipping: Json
-          status: string
-          total: number
           user_id: string
         }
         Insert: {
           created_at?: string
-          id?: string
-          items?: Json
-          shipping?: Json
-          status?: string
-          total?: number
           user_id: string
         }
         Update: {
           created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          access_token: string
+          created_at: string
+          currency: string
+          email: string | null
+          id: string
+          items: Json
+          payment_method: string | null
+          payment_status: string
+          receipt_path: string | null
+          receipt_uploaded_at: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          shipping: Json
+          status: string
+          total: number
+          transaction_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_token?: string
+          created_at?: string
+          currency?: string
+          email?: string | null
           id?: string
           items?: Json
+          payment_method?: string | null
+          payment_status?: string
+          receipt_path?: string | null
+          receipt_uploaded_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
           shipping?: Json
           status?: string
           total?: number
-          user_id?: string
+          transaction_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          currency?: string
+          email?: string | null
+          id?: string
+          items?: Json
+          payment_method?: string | null
+          payment_status?: string
+          receipt_path?: string | null
+          receipt_uploaded_at?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          shipping?: Json
+          status?: string
+          total?: number
+          transaction_id?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

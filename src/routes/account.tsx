@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { derivedStatus, useAuth } from "@/lib/shop";
+import { useAuth } from "@/lib/shop";
+import { PAYMENT_STATUS_LABEL, isPaymentStatus, orderRef } from "@/lib/order-status";
 import { getProduct } from "@/data/products";
 import { formatMoney, isCurrency } from "@/lib/currency";
 
@@ -27,6 +28,9 @@ type OrderRow = {
   status: string;
   items: { id: string; qty: number }[];
   shipping: { currency?: string } | null;
+  currency: string | null;
+  payment_status: string;
+  access_token: string;
 };
 
 const STEPS = ["Order Placed", "Processing", "Shipped"] as const;
@@ -46,19 +50,14 @@ function AccountPage() {
     const load = async () => {
       const { data } = await supabase
         .from("orders")
-        .select("id, created_at, total, status, items, shipping")
+        .select(
+          "id, created_at, total, status, items, shipping, currency, payment_status, access_token",
+        )
         .order("created_at", { ascending: false });
       if (cancelled) return;
       const rows = (data ?? []) as unknown as OrderRow[];
       setOrders(rows);
       setBusy(false);
-      // keep stored status in step with the fulfilment timeline
-      for (const o of rows) {
-        const next = derivedStatus(o.created_at);
-        if (next !== o.status) {
-          await supabase.from("orders").update({ status: next }).eq("id", o.id);
-        }
-      }
     };
     void load();
     const t = setInterval(() => void load(), 30000);
@@ -130,27 +129,45 @@ function AccountPage() {
       ) : (
         <ul className="mt-10 space-y-5">
           {orders.map((o) => {
-            const status = derivedStatus(o.created_at);
+            const status = o.status;
+            const pay = isPaymentStatus(o.payment_status) ? o.payment_status : "approved";
+            const cur = o.currency ?? o.shipping?.currency;
             return (
               <li key={o.id} className="card-surface p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="font-display text-sm">Order #{o.id.slice(0, 8).toUpperCase()}</p>
+                    <p className="font-display text-sm">Order #{orderRef(o.id)}</p>
                     <p className="text-xs text-muted-foreground">
                       {new Date(o.created_at).toLocaleString()}
                     </p>
                   </div>
                   <p className="font-display text-brushed">
-                    {formatMoney(
-                      Number(o.total),
-                      isCurrency(o.shipping?.currency) ? o.shipping.currency : "USD",
-                    )}
+                    {formatMoney(Number(o.total), isCurrency(cur) ? cur : "USD")}
                   </p>
                 </div>
+
+                {pay !== "approved" && (
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border border-border bg-input px-4 py-3 text-xs">
+                    <span className="text-silver">{PAYMENT_STATUS_LABEL[pay]}</span>
+                    <Link
+                      to="/order/$orderId"
+                      params={{ orderId: o.id }}
+                      search={{ t: o.access_token }}
+                      className="text-silver underline"
+                    >
+                      {pay === "awaiting_payment"
+                        ? "Pay & upload receipt"
+                        : pay === "rejected"
+                          ? "Upload receipt again"
+                          : "View order"}
+                    </Link>
+                  </div>
+                )}
 
                 <div className="mt-5 flex items-center gap-2">
                   {STEPS.map((s) => {
                     const done =
+                      pay === "approved" &&
                       STEPS.indexOf(s) <= STEPS.indexOf(status as (typeof STEPS)[number]);
                     return (
                       <div key={s} className="flex-1">

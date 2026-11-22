@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, CreditCard, Lock } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { AlertCircle, CreditCard, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { getProduct } from "@/data/products";
 import { useCurrency } from "@/lib/currency";
 import { useAuth, useCart } from "@/lib/shop";
-import { supabase } from "@/integrations/supabase/client";
 import {
   ACTIVE_PAYMENT_METHODS,
   PaymentMethodDetails,
   getPaymentMethod,
   type PaymentMethodId,
 } from "@/components/PaymentMethods";
-import { ContactButtons } from "@/components/ContactButtons";
 import { startCardCheckout } from "@/lib/stripe.functions";
+import { createManualOrder } from "@/lib/orders.functions";
+import { rememberOrder } from "@/lib/recent-orders";
 import { CONTACT_PAYMENT } from "@/config/contact-payment";
 
 const CARD_ENABLED: boolean = CONTACT_PAYMENT.card.enabled;
@@ -54,18 +54,17 @@ function Checkout() {
   const { lines, subtotal, clear } = useCart();
   const { currency, price, convert } = useCurrency();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [placed, setPlaced] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  const [payMethod, setPayMethod] = useState<PaymentMethodId | "card">(
-    CARD_ENABLED ? "card" : (ACTIVE_PAYMENT_METHODS[0]?.id ?? "card"),
-  );
+  // Nothing is selected until the customer picks a payment method.
+  const [payMethod, setPayMethod] = useState<PaymentMethodId | "card" | null>(null);
+  const canContinue = payMethod !== null && !(payMethod === "card" && !CARD_ENABLED);
   const { canceled } = Route.useSearch();
   useEffect(() => {
     if (canceled) toast("Payment canceled. Your cart is still here.");
   }, [canceled]);
-  const [placedTotal, setPlacedTotal] = useState(0);
   const [ship, setShip] = useState<Shipping>({
     name: "",
     email: "",
@@ -112,82 +111,24 @@ function Checkout() {
   };
 
   const placeOrder = async () => {
-    if (payMethod === "card") return;
+    if (payMethod === null || payMethod === "card") return;
     setBusy(true);
-    const orderRef = crypto.randomUUID();
-    setPlacedTotal(subtotal);
-    if (user) {
-      const { data, error } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
-          items: lines,
-          total: convert(subtotal),
-          shipping: { ...ship, payment_method: getPaymentMethod(payMethod).label, currency },
-          status: "Order Placed",
-        })
-        .select("id")
-        .single();
+    try {
+      const order = await createManualOrder({
+        data: { lines, shipping: ship, currency, method: payMethod },
+      });
+      rememberOrder(order.id, order.token);
+      clear();
+      await navigate({
+        to: "/order/$orderId",
+        params: { orderId: order.id },
+        search: { t: order.token },
+      });
+    } catch (err) {
       setBusy(false);
-      if (error) {
-        toast(error.message);
-        return;
-      }
-      setPlaced(data.id);
-    } else {
-      setBusy(false);
-      setPlaced(orderRef);
+      toast(err instanceof Error ? err.message : "We couldn't place your order. Please try again.");
     }
-    clear();
   };
-
-  if (placed) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <Check size={32} className="mx-auto text-silver" />
-        <h1 className="mt-6 font-display text-3xl">Order Placed</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Reference #{placed.slice(0, 8).toUpperCase()}. Your order moves to Processing shortly,
-          then Shipped.
-        </p>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Shipped in unmarked packaging. Billed as CC Lifestyle.
-        </p>
-        <div className="card-surface mt-8 p-6 text-left">
-          <h2 className="font-display text-lg">
-            Complete payment ·{" "}
-            {getPaymentMethod(payMethod === "card" ? "bitcoin" : payMethod).label}
-          </h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Include reference #{placed.slice(0, 8).toUpperCase()} when you message us.
-          </p>
-          <div className="mt-5">
-            <PaymentMethodDetails
-              method={getPaymentMethod(payMethod === "card" ? "bitcoin" : payMethod)}
-              amount={price(placedTotal)}
-            />
-          </div>
-          <div className="mt-6 border-t border-border pt-6">
-            <ContactButtons />
-          </div>
-        </div>
-        <div className="mt-8 flex justify-center gap-3">
-          {user ? (
-            <Link to="/account" className="btn-silver px-7 py-3 text-xs">
-              View Order History
-            </Link>
-          ) : (
-            <Link to="/auth" className="btn-silver px-7 py-3 text-xs">
-              Create Account to Track
-            </Link>
-          )}
-          <Link to="/shop" className="btn-outline-silver px-7 py-3 text-xs">
-            Keep Shopping
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (lines.length === 0) {
     return (
@@ -274,38 +215,40 @@ function Checkout() {
                   })),
                 ].map((m) => {
                   const active = payMethod === m.id;
-                  const unavailable = m.id === "card" && !CARD_ENABLED;
                   return (
                     <button
                       key={m.id}
                       type="button"
                       role="radio"
                       aria-checked={active}
-                      disabled={unavailable}
                       onClick={() => setPayMethod(m.id)}
                       className={`flex min-h-12 items-center justify-center gap-2 border px-3 py-3 text-xs uppercase tracking-[0.14em] transition-colors ${
-                        unavailable
-                          ? "cursor-not-allowed border-border text-muted-foreground opacity-50"
-                          : active
-                            ? "border-silver bg-input text-foreground"
-                            : "border-border text-muted-foreground hover:border-silver/60 hover:text-foreground"
+                        active
+                          ? "border-silver bg-input text-foreground"
+                          : "border-border text-muted-foreground hover:border-silver/60 hover:text-foreground"
                       }`}
                     >
                       {m.icon}
                       {m.label}
-                      {unavailable && (
-                        <span className="normal-case tracking-normal">· Unavailable</span>
-                      )}
                     </button>
                   );
                 })}
               </div>
-              {!CARD_ENABLED && (
-                <p className="text-xs text-muted-foreground">
-                  Card payment is currently unavailable. Please pay with Bitcoin.
-                </p>
-              )}
-              {payMethod === "card" ? (
+              {payMethod === "card" && !CARD_ENABLED ? (
+                <div
+                  role="alert"
+                  className="flex flex-col gap-3 border border-border bg-input p-4 text-sm leading-relaxed text-muted-foreground sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <p className="flex gap-3">
+                    <AlertCircle
+                      aria-hidden="true"
+                      size={18}
+                      className="mt-0.5 shrink-0 text-silver"
+                    />
+                    Card payment is currently unavailable. Please use Bitcoin.
+                  </p>
+                </div>
+              ) : payMethod === "card" ? (
                 <div className="flex gap-3 border border-border bg-input p-4 text-sm leading-relaxed text-muted-foreground">
                   <Lock aria-hidden="true" size={18} className="mt-0.5 shrink-0 text-silver" />
                   <p>
@@ -314,11 +257,13 @@ function Checkout() {
                     secure payment page. We never see or store your card details.
                   </p>
                 </div>
-              ) : (
+              ) : payMethod ? (
                 <PaymentMethodDetails
                   method={getPaymentMethod(payMethod)}
                   amount={price(subtotal)}
                 />
+              ) : (
+                <p className="text-xs text-muted-foreground">Choose how you'd like to pay.</p>
               )}
               <div className="flex gap-3">
                 <button
@@ -327,7 +272,11 @@ function Checkout() {
                 >
                   Back
                 </button>
-                <button onClick={() => setStep(3)} className="btn-silver flex-1 py-3 text-xs">
+                <button
+                  onClick={() => setStep(3)}
+                  disabled={!canContinue}
+                  className="btn-silver flex-1 py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                >
                   Review Order
                 </button>
               </div>
@@ -347,12 +296,18 @@ function Checkout() {
                 <p>{ship.country}</p>
                 <p className="mt-2">{ship.email}</p>
                 <p className="mt-4 text-silver">Payment</p>
-                <p>{payMethod === "card" ? "Card (Stripe)" : getPaymentMethod(payMethod).label}</p>
+                <p>
+                  {payMethod === "card"
+                    ? "Card (Stripe)"
+                    : payMethod
+                      ? getPaymentMethod(payMethod).label
+                      : ""}
+                </p>
               </div>
               <p className="text-xs text-muted-foreground">
                 {payMethod === "card"
                   ? "You'll be taken to Stripe's secure page to pay. Your order is confirmed as soon as payment goes through."
-                  : "Your order will be recorded as Order Placed while payment confirmation is pending."}
+                  : "Next you'll see the address and exact amount to send. After you send it, tap \"I've sent the payment\" and upload your receipt."}
               </p>
               <label className="flex cursor-pointer items-start gap-3 border border-border bg-input p-4 text-xs leading-relaxed text-muted-foreground">
                 <input
