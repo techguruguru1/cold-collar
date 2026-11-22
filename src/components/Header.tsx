@@ -30,7 +30,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 md:px-6">
         <Link to="/" className="font-display text-xl tracking-[0.2em] text-brushed md:text-2xl">
-          COLD COLLAR
+          COLD COLLER
         </Link>
 
         <nav className="ml-6 hidden items-center gap-6 lg:flex">

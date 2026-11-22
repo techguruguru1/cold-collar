@@ -8,14 +8,14 @@ import { submitToFormspree } from "@/lib/formspree";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Customer Service — Cold Collar" },
+      { title: "Contact Customer Service — Cold Coller" },
       {
         name: "description",
         content:
-          "Message the Cold Collar customer service team about orders, sizing, returns or product guidance.",
+          "Message the Cold Coller customer service team about orders, sizing, returns or product guidance.",
       },
-      { property: "og:title", content: "Contact Cold Collar" },
-      { property: "og:description", content: "Send Cold Collar customer service a message, or reach us on Signal or WhatsApp." },
+      { property: "og:title", content: "Contact Cold Coller" },
+      { property: "og:description", content: "Send Cold Coller customer service a message, or reach us on Signal or WhatsApp." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

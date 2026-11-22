@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="border-t border-border bg-card/40">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-4 md:px-6">
         <div>
-          <p className="font-display text-lg tracking-[0.2em] text-brushed">COLD COLLAR</p>
+          <p className="font-display text-lg tracking-[0.2em] text-brushed">COLD COLLER</p>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
             A premium boutique for disciplined tastes. Considered materials, discreet delivery, no
             compromise on safety.
@@ -116,7 +116,7 @@ export function Footer() {
             <span className="text-silver">{CONTACT_PAYMENT.business.statementName}</span> on your
             statement.
           </p>
-          <p>© {new Date().getFullYear()} Cold Collar. Adults 18+ only. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Cold Coller. Adults 18+ only. All rights reserved.</p>
         </div>
       </div>
     </footer>

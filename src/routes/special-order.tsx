@@ -14,14 +14,14 @@ export const Route = createFileRoute("/special-order")({
   }),
   head: () => ({
     meta: [
-      { title: "Special Order — Cold Collar" },
+      { title: "Special Order — Cold Coller" },
       {
         name: "description",
         content:
-          "Request a custom or special-order piece from Cold Collar: custom sizing, colours, materials or items not in the collection.",
+          "Request a custom or special-order piece from Cold Coller: custom sizing, colours, materials or items not in the collection.",
       },
-      { property: "og:title", content: "Special Order — Cold Collar" },
-      { property: "og:description", content: "Request a custom Cold Collar piece made to your specification." },
+      { property: "og:title", content: "Special Order — Cold Coller" },
+      { property: "og:description", content: "Request a custom Cold Coller piece made to your specification." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -76,7 +76,7 @@ function SpecialOrder() {
   const details = Object.fromEntries(Object.entries(extra).filter(([, v]) => v !== ""));
 
   const chatMessage = [
-    "Hi Cold Collar, I'd like to make a special order.",
+    "Hi Cold Coller, I'd like to make a special order.",
     "",
     ...[
       ["Name", req.name],

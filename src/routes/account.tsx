@@ -8,13 +8,13 @@ import { formatMoney, isCurrency } from "@/lib/currency";
 export const Route = createFileRoute("/account")({
   head: () => ({
     meta: [
-      { title: "Your Account — Cold Collar" },
+      { title: "Your Account — Cold Coller" },
       {
         name: "description",
-        content: "View your Cold Collar order history, track order status and manage your account.",
+        content: "View your Cold Coller order history, track order status and manage your account.",
       },
-      { property: "og:title", content: "Your Account — Cold Collar" },
-      { property: "og:description", content: "Cold Collar order history and account details." },
+      { property: "og:title", content: "Your Account — Cold Coller" },
+      { property: "og:description", content: "Cold Coller order history and account details." },
     ],
   }),
   component: AccountPage,

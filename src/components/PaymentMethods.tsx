@@ -177,7 +177,7 @@ export function PaymentMethodDetails({ method, amount }: { method: MethodInfo; a
               level="M"
               bgColor="var(--foreground)"
               fgColor="var(--background)"
-              title={`${method.label} QR code for Cold Collar`}
+              title={`${method.label} QR code for Cold Coller`}
             />
           </div>
         ) : null}

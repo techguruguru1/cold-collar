@@ -330,7 +330,7 @@ const REVIEW_POOL: { name: string; comment: string }[] = [
   { name: "Elena R.", comment: "Arrived in a plain box, nothing on the label. Exactly the discretion promised." },
   { name: "Dana K.", comment: "Adjustment range is generous — fits both of us without swapping anything out." },
   { name: "Priya S.", comment: "Finish is immaculate. No rough edges anywhere, and the hardware feels solid." },
-  { name: "Owen B.", comment: "Second purchase from Cold Collar. Consistency between orders is impressive." },
+  { name: "Owen B.", comment: "Second purchase from Cold Coller. Consistency between orders is impressive." },
   { name: "Nadia F.", comment: "Comfortable for long sessions, which is rarely true of gear at this level." },
   { name: "Julian M.", comment: "Instructions were clear and safety notes were genuinely useful for us." },
   { name: "Hana L.", comment: "Shipping was quick and the packaging was sturdy. Nothing shifted in transit." },

@@ -8,13 +8,13 @@ import { COLLECTIONS } from "@/data/products";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cold Collar — Discipline. Desire. Control." },
+      { title: "Cold Coller — Discipline. Desire. Control." },
       {
         name: "description",
         content:
           "Premium BDSM boutique. Leather, steel and precision gear for beginners through advanced collectors. Discreet shipping and billing.",
       },
-      { property: "og:title", content: "Cold Collar — Discipline. Desire. Control." },
+      { property: "og:title", content: "Cold Coller — Discipline. Desire. Control." },
       {
         property: "og:description",
         content: "Premium BDSM boutique with discreet shipping, premium materials and secure checkout.",

@@ -23,14 +23,14 @@ export const Route = createFileRoute("/checkout")({
   }),
   head: () => ({
     meta: [
-      { title: "Checkout — Cold Collar" },
+      { title: "Checkout — Cold Coller" },
       {
         name: "description",
         content:
-          "Three-step Cold Collar checkout: shipping, payment details and confirmation. Guest checkout available.",
+          "Three-step Cold Coller checkout: shipping, payment details and confirmation. Guest checkout available.",
       },
-      { property: "og:title", content: "Checkout — Cold Collar" },
-      { property: "og:description", content: "Secure, discreet Cold Collar checkout." },
+      { property: "og:title", content: "Checkout — Cold Coller" },
+      { property: "og:description", content: "Secure, discreet Cold Coller checkout." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

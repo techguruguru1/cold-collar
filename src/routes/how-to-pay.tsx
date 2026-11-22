@@ -5,10 +5,10 @@ import { ContactButtons } from "@/components/ContactButtons";
 export const Route = createFileRoute("/how-to-pay")({
   head: () => ({
     meta: [
-      { title: "How to Pay — Cold Collar" },
-      { name: "description", content: "Card and Bitcoin payment instructions and customer service contacts for Cold Collar orders." },
-      { property: "og:title", content: "How to Pay — Cold Collar" },
-      { property: "og:description", content: "Pay for a Cold Collar order by card or Bitcoin and send transaction details securely." },
+      { title: "How to Pay — Cold Coller" },
+      { name: "description", content: "Card and Bitcoin payment instructions and customer service contacts for Cold Coller orders." },
+      { property: "og:title", content: "How to Pay — Cold Coller" },
+      { property: "og:description", content: "Pay for a Cold Coller order by card or Bitcoin and send transaction details securely." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -73,13 +73,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Cold Collar — Premium BDSM Boutique" },
+      { title: "Cold Coller — Premium BDSM Boutique" },
       {
         name: "description",
         content:
-          "Cold Collar is a premium adult lifestyle boutique. Discreet shipping, premium materials, secure checkout.",
+          "Cold Coller is a premium adult lifestyle boutique. Discreet shipping, premium materials, secure checkout.",
       },
-      { property: "og:site_name", content: "Cold Collar" },
+      { property: "og:site_name", content: "Cold Coller" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "rating", content: "adult" },

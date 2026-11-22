@@ -4,13 +4,13 @@ import { PageShell, PolicyContact, PolicyLink, Section } from "@/components/Pros
 export const Route = createFileRoute("/returns")({
   head: () => ({
     meta: [
-      { title: "Returns & Refund Policy — Cold Collar" },
+      { title: "Returns & Refund Policy — Cold Coller" },
       {
         name: "description",
         content:
-          "Cold Collar returns: cancel free before dispatch, 30 days on unopened items, final sale on opened intimate-use products, and full cover for faults.",
+          "Cold Coller returns: cancel free before dispatch, 30 days on unopened items, final sale on opened intimate-use products, and full cover for faults.",
       },
-      { property: "og:title", content: "Returns & Refunds — Cold Collar" },
+      { property: "og:title", content: "Returns & Refunds — Cold Coller" },
       {
         property: "og:description",
         content: "30-day returns on unopened items; faults always covered.",

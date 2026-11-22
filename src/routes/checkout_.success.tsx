@@ -12,7 +12,7 @@ export const Route = createFileRoute("/checkout_/success")({
     session_id: typeof search["session_id"] === "string" ? search["session_id"] : undefined,
   }),
   head: () => ({
-    meta: [{ title: "Payment Received — Cold Collar" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Payment Received — Cold Coller" }, { name: "robots", content: "noindex" }],
   }),
   component: CheckoutSuccess,
 });

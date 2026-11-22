@@ -81,8 +81,8 @@ export function PolicyContact({ heading = "Contact Us" }: { heading?: string }) 
   );
 }
 
-/** The registered business name, or "Cold Collar" if it hasn't been filled in. */
+/** The registered business name, or "Cold Coller" if it hasn't been filled in. */
 export function BusinessName() {
   const { legalName } = CONTACT_PAYMENT.business;
-  return <>{legalName ? `${legalName}, trading as Cold Collar` : "Cold Collar"}</>;
+  return <>{legalName ? `${legalName}, trading as Cold Coller` : "Cold Coller"}</>;
 }

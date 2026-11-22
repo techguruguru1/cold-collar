@@ -4,16 +4,16 @@ import { PageShell, PolicyContact, PolicyLink, Section, BusinessName } from "@/c
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Cold Collar" },
+      { title: "Privacy Policy — Cold Coller" },
       {
         name: "description",
         content:
-          "What personal information Cold Collar collects, why, who it is shared with, how long it is kept and your rights. We never sell customer data.",
+          "What personal information Cold Coller collects, why, who it is shared with, how long it is kept and your rights. We never sell customer data.",
       },
-      { property: "og:title", content: "Privacy Policy — Cold Collar" },
+      { property: "og:title", content: "Privacy Policy — Cold Coller" },
       {
         property: "og:description",
-        content: "How Cold Collar handles and protects your information.",
+        content: "How Cold Coller handles and protects your information.",
       },
     ],
   }),
@@ -24,7 +24,7 @@ function Privacy() {
   return (
     <PageShell
       title="Privacy Policy"
-      intro="This policy explains what information we collect when you visit or buy from Cold Collar, how we use it and the choices you have."
+      intro="This policy explains what information we collect when you visit or buy from Cold Coller, how we use it and the choices you have."
       updated
     >
       <Section heading="Who Is Responsible">

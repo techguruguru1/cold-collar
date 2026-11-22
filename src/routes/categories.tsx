@@ -5,16 +5,16 @@ import { COLLECTIONS, products } from "@/data/products";
 export const Route = createFileRoute("/categories")({
   head: () => ({
     meta: [
-      { title: "Collections — Cold Collar" },
+      { title: "Collections — Cold Coller" },
       {
         name: "description",
         content:
-          "Four Cold Collar collections: Beginner, Intermediate, Advanced and Specialty. Find the tier that matches your experience.",
+          "Four Cold Coller collections: Beginner, Intermediate, Advanced and Specialty. Find the tier that matches your experience.",
       },
-      { property: "og:title", content: "Collections — Cold Collar" },
+      { property: "og:title", content: "Collections — Cold Coller" },
       {
         property: "og:description",
-        content: "Beginner, Intermediate, Advanced and Specialty gear tiers from Cold Collar.",
+        content: "Beginner, Intermediate, Advanced and Specialty gear tiers from Cold Coller.",
       },
     ],
   }),

@@ -4,13 +4,13 @@ import { PageShell, PolicyContact, PolicyLink, Section } from "@/components/Pros
 export const Route = createFileRoute("/shipping-policy")({
   head: () => ({
     meta: [
-      { title: "Shipping Policy & Restrictions — Cold Collar" },
+      { title: "Shipping Policy & Restrictions — Cold Coller" },
       {
         name: "description",
         content:
-          "Cold Collar shipping times, discreet packaging, tracking, address changes and country restrictions on adult products.",
+          "Cold Coller shipping times, discreet packaging, tracking, address changes and country restrictions on adult products.",
       },
-      { property: "og:title", content: "Shipping Policy — Cold Collar" },
+      { property: "og:title", content: "Shipping Policy — Cold Coller" },
       {
         property: "og:description",
         content: "Discreet packaging, delivery times and shipping restrictions.",

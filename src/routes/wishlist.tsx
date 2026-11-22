@@ -7,16 +7,16 @@ import { useAuth, useCart, useWishlist } from "@/lib/shop";
 export const Route = createFileRoute("/wishlist")({
   head: () => ({
     meta: [
-      { title: "Your Wishlist — Cold Collar" },
+      { title: "Your Wishlist — Cold Coller" },
       {
         name: "description",
         content:
-          "Saved pieces from the Cold Collar collection, ready to move straight into your cart.",
+          "Saved pieces from the Cold Coller collection, ready to move straight into your cart.",
       },
-      { property: "og:title", content: "Your Wishlist — Cold Collar" },
+      { property: "og:title", content: "Your Wishlist — Cold Coller" },
       {
         property: "og:description",
-        content: "Saved Cold Collar pieces, ready to add to your cart.",
+        content: "Saved Cold Coller pieces, ready to add to your cart.",
       },
     ],
   }),

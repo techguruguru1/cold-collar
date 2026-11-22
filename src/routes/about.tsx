@@ -4,16 +4,16 @@ import { PageShell, Section } from "@/components/Prose";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Cold Collar — Discreet, Disciplined, Premium" },
+      { title: "About Cold Coller — Discreet, Disciplined, Premium" },
       {
         name: "description",
         content:
-          "Cold Collar is a premium adult lifestyle boutique built on material quality, safety and absolute discretion.",
+          "Cold Coller is a premium adult lifestyle boutique built on material quality, safety and absolute discretion.",
       },
-      { property: "og:title", content: "About Cold Collar" },
+      { property: "og:title", content: "About Cold Coller" },
       {
         property: "og:description",
-        content: "Why Cold Collar exists: material quality, safety and absolute discretion.",
+        content: "Why Cold Coller exists: material quality, safety and absolute discretion.",
       },
     ],
   }),
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/about")({
 function About() {
   return (
     <PageShell
-      title="About Cold Collar"
+      title="About Cold Coller"
       intro="A boutique for people who treat this lifestyle with the same seriousness they bring to anything else they care about."
     >
       <Section heading="Our Standard">

@@ -14,7 +14,7 @@ export function AgeGate() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 px-4 backdrop-blur-md">
       <div className="card-surface w-full max-w-md p-8 text-center">
-        <p className="font-display text-xl tracking-[0.2em] text-brushed">COLD COLLAR</p>
+        <p className="font-display text-xl tracking-[0.2em] text-brushed">COLD COLLER</p>
         <h2 className="mt-6 font-display text-2xl">Are you 18 or older?</h2>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           This boutique contains adult lifestyle products. You must confirm you are of legal age to

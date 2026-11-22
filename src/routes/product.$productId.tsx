@@ -17,7 +17,7 @@ export const Route = createFileRoute("/product/$productId")({
     if (!loaderData) {
       return {
         meta: [
-          { title: "Product unavailable — Cold Collar" },
+          { title: "Product unavailable — Cold Coller" },
           { name: "robots", content: "noindex" },
         ],
       };
@@ -25,9 +25,9 @@ export const Route = createFileRoute("/product/$productId")({
     const { product } = loaderData;
     return {
       meta: [
-        { title: `${product.name} — Cold Collar` },
+        { title: `${product.name} — Cold Coller` },
         { name: "description", content: product.description.slice(0, 155) },
-        { property: "og:title", content: `${product.name} — Cold Collar` },
+        { property: "og:title", content: `${product.name} — Cold Coller` },
         { property: "og:description", content: product.description.slice(0, 155) },
       ],
     };

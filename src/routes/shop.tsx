@@ -31,13 +31,13 @@ export const Route = createFileRoute("/shop")({
   }),
   head: () => ({
     meta: [
-      { title: "Shop All Gear — Cold Collar" },
+      { title: "Shop All Gear — Cold Coller" },
       {
         name: "description",
         content:
-          "Browse the full Cold Collar catalogue: restraints, benches, harnesses, steel and electro gear. Filter by intensity level and premium material.",
+          "Browse the full Cold Coller catalogue: restraints, benches, harnesses, steel and electro gear. Filter by intensity level and premium material.",
       },
-      { property: "og:title", content: "Shop All Gear — Cold Collar" },
+      { property: "og:title", content: "Shop All Gear — Cold Coller" },
       {
         property: "og:description",
         content: "Filter premium BDSM gear by intensity level and material. Discreet shipping worldwide.",

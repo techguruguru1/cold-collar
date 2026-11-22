@@ -5,14 +5,14 @@ import { CONTACT_PAYMENT } from "@/config/contact-payment";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service — Cold Collar" },
+      { title: "Terms of Service — Cold Coller" },
       {
         name: "description",
         content:
-          "The terms for buying from Cold Collar: age requirement, orders, prices and currency, payment, billing, cancellations, refunds and safe use.",
+          "The terms for buying from Cold Coller: age requirement, orders, prices and currency, payment, billing, cancellations, refunds and safe use.",
       },
-      { property: "og:title", content: "Terms of Service — Cold Collar" },
-      { property: "og:description", content: "The terms for buying from Cold Collar." },
+      { property: "og:title", content: "Terms of Service — Cold Coller" },
+      { property: "og:description", content: "The terms for buying from Cold Coller." },
     ],
   }),
   component: Terms,
@@ -28,7 +28,7 @@ function Terms() {
     >
       <Section heading="Who We Are">
         <p>
-          This website is operated by <BusinessName /> ("we", "us"). Cold Collar sells adult
+          This website is operated by <BusinessName /> ("we", "us"). Cold Coller sells adult
           lifestyle products to adults only.
         </p>
       </Section>
@@ -138,7 +138,7 @@ function Terms() {
 
       <Section heading="Content">
         <p>
-          The text, images and design of this site belong to Cold Collar or its suppliers and may
+          The text, images and design of this site belong to Cold Coller or its suppliers and may
           not be copied without written permission.
         </p>
       </Section>
@@ -146,7 +146,7 @@ function Terms() {
       <Section heading="Governing Law">
         <p>
           These terms are governed by the laws of{" "}
-          {governingLaw || "the country where Cold Collar is registered"}. If you are a consumer,
+          {governingLaw || "the country where Cold Coller is registered"}. If you are a consumer,
           you also keep any protection given to you by the laws of the country where you live.
         </p>
       </Section>

@@ -5,13 +5,13 @@ import { CONTACT_PAYMENT } from "@/config/contact-payment";
 export const Route = createFileRoute("/data-privacy")({
   head: () => ({
     meta: [
-      { title: "Data Privacy & Discreet Billing — Cold Collar" },
+      { title: "Data Privacy & Discreet Billing — Cold Coller" },
       {
         name: "description",
         content:
           "No data sold to third parties, purchase history never shared, and billing under a discreet generic name.",
       },
-      { property: "og:title", content: "Data Privacy — Cold Collar" },
+      { property: "og:title", content: "Data Privacy — Cold Coller" },
       {
         property: "og:description",
         content: "No data sold, purchase history never shared, discreet billing as CC Lifestyle.",

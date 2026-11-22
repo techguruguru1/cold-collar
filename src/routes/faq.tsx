@@ -4,16 +4,16 @@ import { PageShell, Section } from "@/components/Prose";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ — Shipping, Returns, Sizing & Safety | Cold Collar" },
+      { title: "FAQ — Shipping, Returns, Sizing & Safety | Cold Coller" },
       {
         name: "description",
         content:
           "Answers on discreet shipping, returns on intimate-use items, sizing help, first-time buyer guidance and safety basics.",
       },
-      { property: "og:title", content: "Cold Collar FAQ" },
+      { property: "og:title", content: "Cold Coller FAQ" },
       {
         property: "og:description",
-        content: "Discreet shipping, returns, sizing and safety answers from Cold Collar.",
+        content: "Discreet shipping, returns, sizing and safety answers from Cold Coller.",
       },
     ],
   }),

@@ -8,16 +8,16 @@ import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign In or Create Account — Cold Collar" },
+      { title: "Sign In or Create Account — Cold Coller" },
       {
         name: "description",
         content:
-          "Sign in to Cold Collar to save your wishlist and view order history. Guest checkout is always available.",
+          "Sign in to Cold Coller to save your wishlist and view order history. Guest checkout is always available.",
       },
-      { property: "og:title", content: "Sign In — Cold Collar" },
+      { property: "og:title", content: "Sign In — Cold Coller" },
       {
         property: "og:description",
-        content: "Access your Cold Collar wishlist and order history.",
+        content: "Access your Cold Coller wishlist and order history.",
       },
     ],
   }),
