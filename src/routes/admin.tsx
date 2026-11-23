@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ExternalLink, Loader2, LogOut, RefreshCw } from "lucide-react";
 import { BitcoinSettings } from "@/components/admin/BitcoinSettings";
+import { SpecialOrders } from "@/components/admin/SpecialOrders";
 import { getProduct } from "@/data/products";
 import { formatMoney, isCurrency } from "@/lib/currency";
 import { adminAuth, adminToken } from "@/lib/admin-auth";
@@ -143,7 +144,8 @@ function AdminLogin({ onSignedIn }: { onSignedIn: (email: string) => void }) {
 }
 
 function Dashboard({ email, onSignOut }: { email: string; onSignOut: () => Promise<void> }) {
-  const [view, setView] = useState<"orders" | "settings">("orders");
+  const [view, setView] = useState<"orders" | "special" | "settings">("orders");
+  const [specialNew, setSpecialNew] = useState(0);
   const [tab, setTab] = useState<Tab>("under_review");
   const [rows, setRows] = useState<Row[] | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -219,17 +221,25 @@ function Dashboard({ email, onSignOut }: { email: string; onSignOut: () => Promi
       <main className="mx-auto max-w-6xl px-4 py-10 md:px-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h1 className="font-display text-3xl">
-            {view === "orders" ? "Dashboard" : "Payment settings"}
+            {view === "orders"
+              ? "Dashboard"
+              : view === "special"
+                ? "Special orders"
+                : "Payment settings"}
           </h1>
-          <div className="flex gap-2">
-            {(["orders", "settings"] as const).map((v) => (
+          <div className="flex flex-wrap gap-2">
+            {(["orders", "special", "settings"] as const).map((v) => (
               <button
                 key={v}
                 type="button"
                 onClick={() => setView(v)}
                 className={`px-4 py-2 text-[11px] ${view === v ? "btn-silver" : "btn-outline-silver"}`}
               >
-                {v === "orders" ? "Orders" : "Payment settings"}
+                {v === "orders"
+                  ? "Orders"
+                  : v === "special"
+                    ? `Special orders${specialNew ? ` (${specialNew})` : ""}`
+                    : "Payment settings"}
               </button>
             ))}
           </div>
@@ -237,6 +247,8 @@ function Dashboard({ email, onSignOut }: { email: string; onSignOut: () => Promi
 
         {view === "settings" ? (
           <BitcoinSettings />
+        ) : view === "special" ? (
+          <SpecialOrders onNewCount={setSpecialNew} />
         ) : (
           <>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

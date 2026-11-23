@@ -89,6 +89,57 @@ export type Database = {
         }
         Relationships: []
       }
+      special_orders: {
+        Row: {
+          budget: string | null
+          created_at: string
+          details: string
+          email: string
+          id: string
+          image_paths: string[]
+          item: string
+          name: string
+          needed_by: string | null
+          phone: string | null
+          product: string | null
+          quantity: number
+          size: string | null
+          status: string
+        }
+        Insert: {
+          budget?: string | null
+          created_at?: string
+          details: string
+          email: string
+          id?: string
+          image_paths?: string[]
+          item: string
+          name: string
+          needed_by?: string | null
+          phone?: string | null
+          product?: string | null
+          quantity?: number
+          size?: string | null
+          status?: string
+        }
+        Update: {
+          budget?: string | null
+          created_at?: string
+          details?: string
+          email?: string
+          id?: string
+          image_paths?: string[]
+          item?: string
+          name?: string
+          needed_by?: string | null
+          phone?: string | null
+          product?: string | null
+          quantity?: number
+          size?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           key: string
