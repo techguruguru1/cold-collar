@@ -76,7 +76,9 @@ export function SpecialOrders({ onNewCount }: { onNewCount?: (n: number) => void
 
 function SpecialOrderCard({ item: it, onChanged }: { item: Item; onChanged: () => void }) {
   const [busy, setBusy] = useState(false);
+  const [shown, setShown] = useState(0);
   const handled = it.status === "handled";
+  const photo = it.images[shown] ?? it.images[0];
 
   const toggle = async () => {
     setBusy(true);
@@ -85,6 +87,7 @@ function SpecialOrderCard({ item: it, onChanged }: { item: Item; onChanged: () =
       await adminSetSpecialOrderStatus({
         data: { accessToken, id: it.id, status: handled ? "new" : "handled" },
       });
+      toast(handled ? "Moved back to New." : "Marked as handled.");
       onChanged();
     } catch (err) {
       toast(err instanceof Error ? err.message : "Couldn't update the request.");
@@ -103,84 +106,92 @@ function SpecialOrderCard({ item: it, onChanged }: { item: Item; onChanged: () =
   ];
 
   return (
-    <li className={`card-surface p-5 md:p-6 ${handled ? "opacity-70" : ""}`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-display text-lg break-words">{it.item}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {new Date(it.createdAt).toLocaleString()} · {it.name} ·{" "}
-            <a href={`mailto:${it.email}`} className="underline hover:text-silver">
-              {it.email}
-            </a>
+    <li className="card-surface grid gap-6 p-6 md:grid-cols-[1fr_220px]">
+      <div className="min-w-0 space-y-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="font-display text-base text-foreground">
+            Special order #{it.id.slice(0, 8).toUpperCase()}
+          </p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-silver">
+            {handled ? "Handled" : "New"}
           </p>
         </div>
-        <span
-          className={`border px-2 py-1 text-[10px] uppercase tracking-[0.18em] ${
-            handled ? "border-border text-muted-foreground" : "border-silver text-silver"
-          }`}
-        >
-          {handled ? "Handled" : "New"}
-        </span>
-      </div>
-
-      <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-relaxed">{it.details}</p>
-
-      <dl className="mt-4 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
+        <p>
+          Sent {new Date(it.createdAt).toLocaleString()}
+          {it.images.length > 0 && ` · ${it.images.length} photo${it.images.length > 1 ? "s" : ""}`}
+        </p>
+        <p>
+          <span className="text-silver">{it.name}</span> · {it.email}
+        </p>
+        <div className="border-t border-border pt-3">
+          <p className="break-words text-sm text-foreground">{it.item}</p>
+          <p className="mt-2 whitespace-pre-wrap break-words leading-relaxed">{it.details}</p>
+        </div>
         {facts
           .filter(([, v]) => v !== null && v !== "")
           .map(([k, v]) => (
-            <div key={k} className="flex gap-2">
-              <dt className="text-muted-foreground">{k}:</dt>
-              <dd className="break-words">{v}</dd>
-            </div>
+            <p key={k} className="break-words">
+              {k}: <span className="text-silver">{v}</span>
+            </p>
           ))}
-      </dl>
 
-      {it.images.length > 0 ? (
-        <div className="mt-5">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-silver">
-            Photos ({it.images.length})
-          </p>
-          <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {it.images.map((src, i) => (
-              <a
-                key={src}
-                href={src}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block border border-border bg-input hover:border-silver"
-              >
-                <img
-                  src={src}
-                  alt={`Photo ${i + 1} for ${it.item}`}
-                  className="aspect-square w-full object-cover"
-                />
-              </a>
-            ))}
-          </div>
-          <p className="mt-1 text-[11px] text-muted-foreground">
-            Click a photo to open it full size.
-          </p>
+        <div className="flex flex-wrap gap-2 pt-2">
+          <a
+            href={`mailto:${it.email}?subject=${encodeURIComponent(`Your special order: ${it.item}`)}`}
+            className="btn-silver px-5 py-2.5 text-xs"
+          >
+            Reply by Email
+          </a>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void toggle()}
+            className="btn-outline-silver px-5 py-2.5 text-xs disabled:opacity-60"
+          >
+            {busy ? "Saving…" : handled ? "Move back to New" : "Mark as Handled"}
+          </button>
         </div>
-      ) : (
-        <p className="mt-5 text-xs text-muted-foreground">No photos attached.</p>
-      )}
+      </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        <a
-          href={`mailto:${it.email}?subject=${encodeURIComponent(`Your special order: ${it.item}`)}`}
-          className="btn-silver px-5 py-2.5 text-xs"
-        >
-          Reply by email
-        </a>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void toggle()}
-          className="btn-outline-silver px-5 py-2.5 text-xs disabled:opacity-60"
-        >
-          {busy ? "Saving…" : handled ? "Move back to New" : "Mark as handled"}
-        </button>
+      <div>
+        {photo ? (
+          <>
+            <a
+              href={photo}
+              target="_blank"
+              rel="noreferrer"
+              className="group block border border-border hover:border-silver"
+            >
+              <img
+                src={photo}
+                alt={`Special order photo ${shown + 1}`}
+                className="max-h-72 w-full object-contain"
+              />
+              <span className="block border-t border-border px-3 py-2 text-center text-[11px] text-muted-foreground group-hover:text-silver">
+                Open full size
+              </span>
+            </a>
+            {it.images.length > 1 && (
+              <div className="mt-2 grid grid-cols-4 gap-2">
+                {it.images.map((src, i) => (
+                  <button
+                    key={src}
+                    type="button"
+                    onClick={() => setShown(i)}
+                    aria-label={`Show photo ${i + 1}`}
+                    className={`border ${i === shown ? "border-silver" : "border-border"}`}
+                  >
+                    <img src={src} alt="" className="aspect-square w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="flex h-40 items-center justify-center border border-dashed border-border text-xs text-muted-foreground">
+            No photo uploaded
+          </p>
+        )}
       </div>
     </li>
   );
