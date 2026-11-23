@@ -13,6 +13,7 @@ const shippingSchema = z.object({
   city: z.string().trim().min(1).max(120),
   postcode: z.string().trim().min(1).max(30),
   country: z.string().trim().min(1).max(80),
+  state: z.string().trim().max(80).default(""),
 });
 
 const orderKey = z.object({ id: z.string().uuid(), token: z.string().uuid() });

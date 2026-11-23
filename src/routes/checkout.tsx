@@ -15,6 +15,7 @@ import { startCardCheckout } from "@/lib/stripe.functions";
 import { createManualOrder } from "@/lib/orders.functions";
 import { rememberOrder } from "@/lib/recent-orders";
 import { ReceiptDialog } from "@/components/ReceiptDialog";
+import { CountryRegionFields } from "@/components/CountryRegionFields";
 import { CONTACT_PAYMENT } from "@/config/contact-payment";
 
 const CARD_ENABLED: boolean = CONTACT_PAYMENT.card.enabled;
@@ -49,6 +50,7 @@ type Shipping = {
   city: string;
   postcode: string;
   country: string;
+  state: string;
 };
 
 function Checkout() {
@@ -74,6 +76,7 @@ function Checkout() {
     city: "",
     postcode: "",
     country: "",
+    state: "",
   });
 
   const field = (key: keyof Shipping, label: string) => (
@@ -232,7 +235,11 @@ function Checkout() {
                 {field("city", "City")}
                 {field("postcode", "Postcode")}
               </div>
-              {field("country", "Country")}
+              <CountryRegionFields
+                country={ship.country}
+                region={ship.state}
+                onChange={({ country, region }) => setShip({ ...ship, country, state: region })}
+              />
               <button type="submit" className="btn-silver w-full py-3 text-xs">
                 Continue to Payment
               </button>
@@ -355,7 +362,7 @@ function Checkout() {
                 <p>
                   {ship.city} {ship.postcode}
                 </p>
-                <p>{ship.country}</p>
+                <p>{[ship.state, ship.country].filter(Boolean).join(", ")}</p>
                 <p className="mt-2">{ship.email}</p>
                 <p className="mt-4 text-silver">Payment</p>
                 <p>

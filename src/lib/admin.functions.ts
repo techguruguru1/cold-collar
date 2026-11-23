@@ -95,7 +95,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
           createdAt: r.created_at,
           email: r.email ?? ship["email"] ?? "",
           name: ship["name"] ?? "",
-          address: [ship["address"], ship["city"], ship["postcode"], ship["country"]]
+          address: [ship["address"], ship["city"], ship["postcode"], ship["state"], ship["country"]]
             .filter(Boolean)
             .join(", "),
           items: r.items as { id: string; qty: number }[],

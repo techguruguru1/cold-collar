@@ -14,6 +14,7 @@ const shippingSchema = z.object({
   city: z.string().trim().min(1).max(120),
   postcode: z.string().trim().min(1).max(30),
   country: z.string().trim().min(1).max(80),
+  state: z.string().trim().max(80).default(""),
 });
 
 const startSchema = z.object({
@@ -70,6 +71,7 @@ export const startCardCheckout = createServerFn({ method: "POST" })
         ship_city: s.city,
         ship_postcode: s.postcode,
         ship_country: s.country,
+        ship_state: s.state,
         items: data.lines
           .map((l) => `${l.id}x${l.qty}`)
           .join(",")
