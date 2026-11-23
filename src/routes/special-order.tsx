@@ -6,6 +6,7 @@ import { CONTACT_PAYMENT } from "@/config/contact-payment";
 import { getProduct } from "@/data/products";
 import { submitToFormspree } from "@/lib/formspree";
 import { supabase } from "@/integrations/supabase/client";
+import { acceptFor, fileTypeOf } from "@/lib/file-types";
 import {
   SPECIAL_ORDER_IMAGE_MAX_BYTES,
   SPECIAL_ORDER_IMAGE_TYPES,
@@ -95,7 +96,7 @@ function SpecialOrder() {
         setPhotoProblem(`You can add up to ${SPECIAL_ORDER_MAX_IMAGES} photos.`);
         break;
       }
-      if (!(SPECIAL_ORDER_IMAGE_TYPES as readonly string[]).includes(f.type)) {
+      if (!fileTypeOf(f, SPECIAL_ORDER_IMAGE_TYPES)) {
         setPhotoProblem("Please choose photos (JPG, PNG, WEBP or HEIC).");
         continue;
       }
@@ -148,12 +149,13 @@ function SpecialOrder() {
       }
       const imagePaths: string[] = [];
       for (const f of photos) {
+        const contentType: ImageType = fileTypeOf(f, SPECIAL_ORDER_IMAGE_TYPES) ?? "image/jpeg";
         const { path, uploadToken } = await startSpecialOrderUpload({
-          data: { contentType: f.type as ImageType, size: f.size },
+          data: { contentType, size: f.size },
         });
         const { error: upErr } = await supabase.storage
           .from(SPECIAL_ORDER_BUCKET)
-          .uploadToSignedUrl(path, uploadToken, f, { contentType: f.type });
+          .uploadToSignedUrl(path, uploadToken, f, { contentType });
         if (upErr)
           throw new Error(
             "A photo couldn't be uploaded. Please check your connection and try again.",
@@ -402,7 +404,7 @@ function SpecialOrder() {
                     id="so-photos"
                     type="file"
                     multiple
-                    accept={SPECIAL_ORDER_IMAGE_TYPES.join(",")}
+                    accept={acceptFor(SPECIAL_ORDER_IMAGE_TYPES)}
                     className="sr-only"
                     onChange={(e) => {
                       addPhotos(e.target.files);

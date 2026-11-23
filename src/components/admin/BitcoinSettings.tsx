@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { ImageUp, Loader2, Pencil } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { adminAuth, adminToken } from "@/lib/admin-auth";
+import { acceptFor, fileTypeOf } from "@/lib/file-types";
 import { adminSavePaymentSettings, adminStartQrUpload } from "@/lib/admin.functions";
 import { getPaymentSettings, isBitcoinAddress, type PaymentSettings } from "@/lib/payment-settings";
 
@@ -54,7 +55,7 @@ export function BitcoinSettings() {
   const pickFile = (f: File | null) => {
     setProblem(null);
     if (!f) return;
-    if (!(QR_TYPES as readonly string[]).includes(f.type)) {
+    if (!fileTypeOf(f, QR_TYPES)) {
       setProblem("Please choose a PNG, JPG or WEBP image.");
       return;
     }
@@ -90,12 +91,13 @@ export function BitcoinSettings() {
       };
       if (qrMode === "auto") qr = { mode: "auto" };
       if (qrMode === "upload" && file) {
+        const contentType: QrType = fileTypeOf(file, QR_TYPES) ?? "image/png";
         const { path, uploadToken } = await adminStartQrUpload({
-          data: { accessToken, contentType: file.type as QrType, size: file.size },
+          data: { accessToken, contentType, size: file.size },
         });
         const { error } = await adminAuth()
           .storage.from("payment-assets")
-          .uploadToSignedUrl(path, uploadToken, file, { contentType: file.type });
+          .uploadToSignedUrl(path, uploadToken, file, { contentType });
         if (error) throw new Error("The QR image couldn't be uploaded. Please try again.");
         qr = { mode: "upload", path };
       }
@@ -192,7 +194,7 @@ export function BitcoinSettings() {
                 <input
                   id="btc-qr"
                   type="file"
-                  accept={QR_TYPES.join(",")}
+                  accept={acceptFor(QR_TYPES)}
                   className="sr-only"
                   onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
                 />

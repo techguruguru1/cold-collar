@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { startReceiptUpload, submitReceipt } from "@/lib/orders.functions";
 import { RECEIPT_MAX_BYTES, RECEIPT_TYPES, orderRef } from "@/lib/order-status";
 import { submitToFormspree } from "@/lib/formspree";
+import { acceptFor, fileTypeOf } from "@/lib/file-types";
 import { CONTACT_PAYMENT } from "@/config/contact-payment";
 
 /** Pop-up where the customer uploads a screenshot or PDF of their payment. */
@@ -38,7 +39,7 @@ export function ReceiptDialog({
   const pick = (f: File | null) => {
     setProblem(null);
     if (!f) return setFile(null);
-    if (!(RECEIPT_TYPES as readonly string[]).includes(f.type)) {
+    if (!fileTypeOf(f, RECEIPT_TYPES)) {
       setFile(null);
       return setProblem("Please choose a photo (JPG, PNG, WEBP, HEIC) or a PDF.");
     }
@@ -54,17 +55,18 @@ export function ReceiptDialog({
     setBusy(true);
     setProblem(null);
     try {
+      const contentType = fileTypeOf(file, RECEIPT_TYPES) ?? "image/jpeg";
       const { path, uploadToken } = await startReceiptUpload({
         data: {
           id: orderId,
           token,
-          contentType: file.type as (typeof RECEIPT_TYPES)[number],
+          contentType,
           size: file.size,
         },
       });
       const { error } = await supabase.storage
         .from("receipts")
-        .uploadToSignedUrl(path, uploadToken, file, { contentType: file.type });
+        .uploadToSignedUrl(path, uploadToken, file, { contentType });
       if (error) throw new Error("Upload failed. Please check your connection and try again.");
       await submitReceipt({
         data: { id: orderId, token, path, ...(txid.trim() ? { transactionId: txid.trim() } : {}) },
@@ -110,7 +112,7 @@ export function ReceiptDialog({
           <input
             id="receipt"
             type="file"
-            accept={RECEIPT_TYPES.join(",")}
+            accept={acceptFor(RECEIPT_TYPES)}
             className="sr-only"
             onChange={(e) => pick(e.target.files?.[0] ?? null)}
           />
