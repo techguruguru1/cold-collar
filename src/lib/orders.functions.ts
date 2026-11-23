@@ -5,6 +5,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { CURRENCY_CODES } from "@/config/currency";
 import { RECEIPT_MAX_BYTES, RECEIPT_TYPES } from "@/lib/order-status";
+import { blockedMessage, isBlockedDestination } from "@/config/shipping-restrictions";
 
 const shippingSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -43,6 +44,9 @@ export const createManualOrder = createServerFn({ method: "POST" })
         import("@/components/PaymentMethods"),
       ]);
 
+    if (isBlockedDestination(data.shipping.country, data.shipping.state)) {
+      throw new Error(blockedMessage(data.shipping.state));
+    }
     if (!pm.ENABLED_METHODS.includes(data.method)) {
       throw new Error("That payment method isn't available.");
     }

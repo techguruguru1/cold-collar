@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell, PolicyContact, PolicyLink, Section } from "@/components/Prose";
+import { BLOCKED_REGIONS } from "@/config/shipping-restrictions";
 
 export const Route = createFileRoute("/shipping-policy")({
   head: () => ({
@@ -60,6 +61,11 @@ function ShippingPolicy() {
           Adult products are restricted or banned in some places. We do not ship to countries where
           importing adult lifestyle goods is against the law, and some US states and local areas
           restrict certain products.
+        </p>
+        <p>
+          Because of state laws on adult products, we currently don't ship to{" "}
+          <span className="text-silver">{BLOCKED_REGIONS.map((r) => r.state).join(" or ")}</span>.
+          Checkout won't accept addresses there.
         </p>
         <p>
           Please make sure the items you order can legally be delivered to your address. If customs

@@ -16,6 +16,7 @@ import { createManualOrder } from "@/lib/orders.functions";
 import { rememberOrder } from "@/lib/recent-orders";
 import { ReceiptDialog } from "@/components/ReceiptDialog";
 import { CountryRegionFields } from "@/components/CountryRegionFields";
+import { blockedMessage, isBlockedDestination } from "@/config/shipping-restrictions";
 import { CONTACT_PAYMENT } from "@/config/contact-payment";
 
 const CARD_ENABLED: boolean = CONTACT_PAYMENT.card.enabled;
@@ -78,6 +79,8 @@ function Checkout() {
     country: "",
     state: "",
   });
+  // Some US states restrict adult products; we don't ship there.
+  const blocked = isBlockedDestination(ship.country, ship.state);
 
   const field = (key: keyof Shipping, label: string) => (
     <div>
@@ -214,6 +217,7 @@ function Checkout() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                if (blocked) return;
                 setStep(2);
               }}
               className="card-surface space-y-4 p-6"
@@ -240,7 +244,24 @@ function Checkout() {
                 region={ship.state}
                 onChange={({ country, region }) => setShip({ ...ship, country, state: region })}
               />
-              <button type="submit" className="btn-silver w-full py-3 text-xs">
+              {blocked && (
+                <p
+                  role="alert"
+                  className="flex gap-3 border border-border bg-input p-4 text-sm leading-relaxed text-muted-foreground"
+                >
+                  <AlertCircle
+                    aria-hidden="true"
+                    size={18}
+                    className="mt-0.5 shrink-0 text-silver"
+                  />
+                  {blockedMessage(ship.state)}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={blocked}
+                className="btn-silver w-full py-3 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 Continue to Payment
               </button>
             </form>

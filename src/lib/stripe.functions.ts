@@ -33,6 +33,10 @@ export const startCardCheckout = createServerFn({ method: "POST" })
     const { CONTACT_PAYMENT } = await import("@/config/contact-payment");
     const cardEnabled: boolean = CONTACT_PAYMENT.card.enabled;
     if (!cardEnabled) throw new Error("Card payment is currently unavailable.");
+    const { blockedMessage, isBlockedDestination } = await import("@/config/shipping-restrictions");
+    if (isBlockedDestination(data.shipping.country, data.shipping.state)) {
+      throw new Error(blockedMessage(data.shipping.state));
+    }
     const [{ createCheckoutSession }, { getProduct }, { getRequestUrl }, { convertFromUsd }] =
       await Promise.all([
         import("./stripe.server"),
