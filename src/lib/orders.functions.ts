@@ -91,23 +91,6 @@ export const createManualOrder = createServerFn({ method: "POST" })
       throw new Error("We couldn't place your order. Please try again.");
     }
 
-    // Confirmation email to the customer. Failures are logged and never block the order.
-    const [{ sendOrderConfirmation }, { getRequestUrl }] = await Promise.all([
-      import("./order-emails.server"),
-      import("@tanstack/react-start/server"),
-    ]);
-    await sendOrderConfirmation({
-      id: row.id,
-      token: row.access_token,
-      email: data.shipping.email,
-      name: data.shipping.name,
-      lines: data.lines,
-      total,
-      currency: data.currency,
-      paymentMethod: label,
-      siteUrl: (process.env["SITE_URL"] || getRequestUrl().origin).replace(/\/$/, ""),
-    });
-
     return { id: row.id, token: row.access_token };
   });
 

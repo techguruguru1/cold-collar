@@ -8,7 +8,7 @@ import { orderRef } from "./order-status";
 import { sendTemplateEmail } from "./send-email.server";
 
 /**
- * "We've received your order" email, sent when the order is placed.
+ * Order confirmation email, sent when the admin approves the payment.
  * Never throws: a failed email must not stop the customer's order.
  */
 export async function sendOrderConfirmation(order: {

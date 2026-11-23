@@ -131,6 +131,14 @@ export const adminReviewPayment = createServerFn({ method: "POST" })
     const { supabaseAdmin, requireAdmin } = await deps();
     await requireAdmin(data.accessToken);
     const approve = data.decision === "approve";
+    const { data: before, error: loadError } = await supabaseAdmin
+      .from("orders")
+      .select(
+        "id, access_token, email, items, total, currency, payment_method, payment_status, shipping",
+      )
+      .eq("id", data.id)
+      .single();
+    if (loadError || !before) throw new Error("Order not found.");
     const { error } = await supabaseAdmin
       .from("orders")
       .update({
@@ -141,6 +149,31 @@ export const adminReviewPayment = createServerFn({ method: "POST" })
       })
       .eq("id", data.id);
     if (error) throw new Error("Couldn't update the order.");
+
+    // Confirmation email, only the first time an order is approved.
+    // Failures are logged and never undo the approval.
+    if (approve && before.payment_status !== "approved") {
+      const [{ sendOrderConfirmation }, { getRequestUrl }, { isCurrency }] = await Promise.all([
+        import("./order-emails.server"),
+        import("@tanstack/react-start/server"),
+        import("./currency"),
+      ]);
+      const ship = (before.shipping ?? {}) as Record<string, string>;
+      const to = before.email ?? ship["email"];
+      if (to) {
+        await sendOrderConfirmation({
+          id: before.id,
+          token: before.access_token,
+          email: to,
+          name: ship["name"] ?? "",
+          lines: before.items as { id: string; qty: number }[],
+          total: Number(before.total),
+          currency: isCurrency(before.currency) ? before.currency : "USD",
+          paymentMethod: before.payment_method ?? "Bitcoin",
+          siteUrl: (process.env["SITE_URL"] || getRequestUrl().origin).replace(/\/$/, ""),
+        });
+      }
+    }
     return { ok: true };
   });
 
