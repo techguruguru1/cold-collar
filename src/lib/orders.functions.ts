@@ -56,6 +56,11 @@ export const createManualOrder = createServerFn({ method: "POST" })
     total = Math.round(total * 100) / 100;
 
     const label = pm.getPaymentMethod(data.method).label;
+    // Remember which Bitcoin address the customer was shown, in case it changes later.
+    const payTo =
+      data.method === "bitcoin"
+        ? (await (await import("./payment-settings")).getPaymentSettings()).bitcoinAddress
+        : null;
     const { data: row, error } = await supabaseAdmin
       .from("orders")
       .insert({
@@ -65,7 +70,12 @@ export const createManualOrder = createServerFn({ method: "POST" })
         total,
         currency: data.currency,
         payment_method: label,
-        shipping: { ...data.shipping, payment_method: label, currency: data.currency },
+        shipping: {
+          ...data.shipping,
+          payment_method: label,
+          currency: data.currency,
+          ...(payTo ? { pay_to: payTo } : {}),
+        },
         status: "Order Placed",
         payment_status: "awaiting_payment",
       })

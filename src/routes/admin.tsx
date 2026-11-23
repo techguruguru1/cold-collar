@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ExternalLink, Loader2, LogOut, RefreshCw } from "lucide-react";
+import { BitcoinSettings } from "@/components/admin/BitcoinSettings";
 import { getProduct } from "@/data/products";
 import { formatMoney, isCurrency } from "@/lib/currency";
 import { adminAuth, adminToken } from "@/lib/admin-auth";
@@ -142,6 +143,7 @@ function AdminLogin({ onSignedIn }: { onSignedIn: (email: string) => void }) {
 }
 
 function Dashboard({ email, onSignOut }: { email: string; onSignOut: () => Promise<void> }) {
+  const [view, setView] = useState<"orders" | "settings">("orders");
   const [tab, setTab] = useState<Tab>("under_review");
   const [rows, setRows] = useState<Row[] | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
@@ -215,59 +217,83 @@ function Dashboard({ email, onSignOut }: { email: string; onSignOut: () => Promi
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-10 md:px-6">
-        <h1 className="font-display text-3xl">Dashboard</h1>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Successful orders"
-            value={summary?.approved}
-            sub={summary ? `${summary.approvedLast30} in the last 30 days` : ""}
-          />
-          <StatCard label="Revenue (approved)" value={revenue || (summary ? "—" : undefined)} />
-          <StatCard
-            label="To review"
-            value={summary?.underReview}
-            sub={summary ? `${summary.awaiting} awaiting payment` : ""}
-            highlight={(summary?.underReview ?? 0) > 0}
-          />
-          <StatCard
-            label="Shipped"
-            value={summary?.shipped}
-            sub={summary ? `${summary.rejected} rejected · ${summary.total} total` : ""}
-          />
-        </div>
-
-        <div className="mt-10 flex flex-wrap gap-2 border-b border-border">
-          {TABS.map((t) => {
-            const n = tabCount(t.id);
-            return (
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h1 className="font-display text-3xl">
+            {view === "orders" ? "Dashboard" : "Payment settings"}
+          </h1>
+          <div className="flex gap-2">
+            {(["orders", "settings"] as const).map((v) => (
               <button
-                key={t.id}
+                key={v}
                 type="button"
-                onClick={() => setTab(t.id)}
-                className={`px-4 py-3 text-[11px] uppercase tracking-[0.18em] ${
-                  tab === t.id ? "border-b-2 border-silver text-silver" : "text-muted-foreground"
-                }`}
+                onClick={() => setView(v)}
+                className={`px-4 py-2 text-[11px] ${view === v ? "btn-silver" : "btn-outline-silver"}`}
               >
-                {t.label}
-                {n ? ` (${n})` : ""}
+                {v === "orders" ? "Orders" : "Payment settings"}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        {rows === null ? (
-          <p className="mt-10 flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 size={16} className="animate-spin" /> Loading orders…
-          </p>
-        ) : rows.length === 0 ? (
-          <p className="mt-10 text-sm text-muted-foreground">Nothing here yet.</p>
+        {view === "settings" ? (
+          <BitcoinSettings />
         ) : (
-          <ul className="mt-8 space-y-5">
-            {rows.map((r) => (
-              <OrderCard key={r.id} row={r} onChanged={() => void load()} />
-            ))}
-          </ul>
+          <>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                label="Successful orders"
+                value={summary?.approved}
+                sub={summary ? `${summary.approvedLast30} in the last 30 days` : ""}
+              />
+              <StatCard label="Revenue (approved)" value={revenue || (summary ? "—" : undefined)} />
+              <StatCard
+                label="To review"
+                value={summary?.underReview}
+                sub={summary ? `${summary.awaiting} awaiting payment` : ""}
+                highlight={(summary?.underReview ?? 0) > 0}
+              />
+              <StatCard
+                label="Shipped"
+                value={summary?.shipped}
+                sub={summary ? `${summary.rejected} rejected · ${summary.total} total` : ""}
+              />
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-2 border-b border-border">
+              {TABS.map((t) => {
+                const n = tabCount(t.id);
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTab(t.id)}
+                    className={`px-4 py-3 text-[11px] uppercase tracking-[0.18em] ${
+                      tab === t.id
+                        ? "border-b-2 border-silver text-silver"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {t.label}
+                    {n ? ` (${n})` : ""}
+                  </button>
+                );
+              })}
+            </div>
+
+            {rows === null ? (
+              <p className="mt-10 flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 size={16} className="animate-spin" /> Loading orders…
+              </p>
+            ) : rows.length === 0 ? (
+              <p className="mt-10 text-sm text-muted-foreground">Nothing here yet.</p>
+            ) : (
+              <ul className="mt-8 space-y-5">
+                {rows.map((r) => (
+                  <OrderCard key={r.id} row={r} onChanged={() => void load()} />
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </main>
     </div>
@@ -336,6 +362,11 @@ function OrderCard({ row: r, onChanged }: { row: Row; onChanged: () => void }) {
           <br />
           {r.address}
         </p>
+        {r.payTo && (
+          <p className="break-all">
+            Pays to: <span className="font-mono text-silver">{r.payTo}</span>
+          </p>
+        )}
         {r.transactionId && (
           <p className="break-all">
             Transaction ID: <span className="text-silver">{r.transactionId}</span>

@@ -105,6 +105,7 @@ export const adminListOrders = createServerFn({ method: "POST" })
           paymentStatus: r.payment_status,
           status: r.status,
           transactionId: r.transaction_id,
+          payTo: ship["pay_to"] ?? null,
           receiptUploadedAt: r.receipt_uploaded_at,
           reviewedAt: r.reviewed_at,
           reviewNote: r.review_note,
@@ -157,5 +158,86 @@ export const adminSetFulfilment = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .eq("payment_status", "approved");
     if (error) throw new Error("Couldn't update the order.");
+    return { ok: true };
+  });
+
+const QR_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
+const PAYMENT_ASSETS_BUCKET = "payment-assets";
+
+/** Step 1 of a QR image upload: a one-time link to upload straight to public storage. */
+export const adminStartQrUpload = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    auth
+      .extend({
+        contentType: z.enum(QR_TYPES),
+        size: z
+          .number()
+          .int()
+          .min(1)
+          .max(5 * 1024 * 1024),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin, requireAdmin } = await deps();
+    await requireAdmin(data.accessToken);
+    const ext = data.contentType.split("/")[1];
+    const path = `bitcoin-qr/${Date.now()}.${ext}`;
+    const { data: signed, error } = await supabaseAdmin.storage
+      .from(PAYMENT_ASSETS_BUCKET)
+      .createSignedUploadUrl(path);
+    if (error || !signed) {
+      console.error("[admin] QR upload link failed", error);
+      throw new Error(
+        "Upload isn't available. Make sure the payment settings database update has been run.",
+      );
+    }
+    return { path: signed.path, uploadToken: signed.token };
+  });
+
+/** Save the Bitcoin address and QR image (qrPath = uploaded file, null = generate from address). */
+export const adminSavePaymentSettings = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    auth
+      .extend({
+        bitcoinAddress: z.string().trim().min(14).max(100),
+        qr: z.discriminatedUnion("mode", [
+          z.object({ mode: z.literal("keep") }),
+          z.object({ mode: z.literal("auto") }),
+          z.object({
+            mode: z.literal("upload"),
+            path: z.string().startsWith("bitcoin-qr/").max(100),
+          }),
+        ]),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }) => {
+    const [{ supabaseAdmin, requireAdmin }, { SETTING_KEYS, isBitcoinAddress }] = await Promise.all(
+      [deps(), import("./payment-settings")],
+    );
+    await requireAdmin(data.accessToken);
+    if (!isBitcoinAddress(data.bitcoinAddress)) {
+      throw new Error("That doesn't look like a Bitcoin address. Check it and try again.");
+    }
+    const now = new Date().toISOString();
+    const rows: { key: string; value: string | null; updated_at: string }[] = [
+      { key: SETTING_KEYS.bitcoinAddress, value: data.bitcoinAddress.trim(), updated_at: now },
+    ];
+    if (data.qr.mode === "auto") {
+      rows.push({ key: SETTING_KEYS.bitcoinQrUrl, value: null, updated_at: now });
+    } else if (data.qr.mode === "upload") {
+      const { data: pub } = supabaseAdmin.storage
+        .from(PAYMENT_ASSETS_BUCKET)
+        .getPublicUrl(data.qr.path);
+      rows.push({ key: SETTING_KEYS.bitcoinQrUrl, value: pub.publicUrl, updated_at: now });
+    }
+    const { error } = await supabaseAdmin.from("site_settings").upsert(rows);
+    if (error) {
+      console.error("[admin] save settings failed", error);
+      throw new Error(
+        "Couldn't save. Make sure the payment settings database update has been run.",
+      );
+    }
     return { ok: true };
   });

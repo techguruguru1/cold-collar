@@ -15,6 +15,11 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { ShopProvider } from "@/lib/shop";
 import { CurrencyProvider, getVisitorCurrency } from "@/lib/currency";
+import {
+  DEFAULT_PAYMENT_SETTINGS,
+  PaymentSettingsProvider,
+  getPaymentSettings,
+} from "@/lib/payment-settings";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -96,8 +101,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
-  // Works out pounds vs dollars once per visit (from a saved choice or the visitor's country).
-  loader: () => getVisitorCurrency(),
+  // Works out pounds vs dollars once per visit (from a saved choice or the visitor's country),
+  // and loads the Bitcoin address / QR the admin has set.
+  loader: async () => {
+    const [{ currency }, payment] = await Promise.all([
+      getVisitorCurrency(),
+      getPaymentSettings().catch(() => DEFAULT_PAYMENT_SETTINGS),
+    ]);
+    return { currency, payment };
+  },
   staleTime: Infinity,
   shouldReload: false,
   shellComponent: RootShell,
@@ -122,7 +134,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const { currency } = Route.useLoaderData();
+  const { currency, payment } = Route.useLoaderData();
   // The admin area is a separate app: no shop header, footer, cart or age check.
   const isAdmin = useRouterState({
     select: (s) => s.location.pathname === "/admin" || s.location.pathname.startsWith("/admin/"),
@@ -132,8 +144,10 @@ function RootComponent() {
     return (
       <QueryClientProvider client={queryClient}>
         <CurrencyProvider initial={currency}>
-          <Outlet />
-          <Toaster theme="dark" position="bottom-right" />
+          <PaymentSettingsProvider value={payment}>
+            <Outlet />
+            <Toaster theme="dark" position="bottom-right" />
+          </PaymentSettingsProvider>
         </CurrencyProvider>
       </QueryClientProvider>
     );
@@ -142,19 +156,21 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <CurrencyProvider initial={currency}>
-        <ShopProvider>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">
-              {/* Required: nested routes render here. */}
-              <Outlet />
-            </main>
-            <Footer />
-          </div>
-          <CartDrawer />
-          <AgeGate />
-          <Toaster theme="dark" position="bottom-right" />
-        </ShopProvider>
+        <PaymentSettingsProvider value={payment}>
+          <ShopProvider>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">
+                {/* Required: nested routes render here. */}
+                <Outlet />
+              </main>
+              <Footer />
+            </div>
+            <CartDrawer />
+            <AgeGate />
+            <Toaster theme="dark" position="bottom-right" />
+          </ShopProvider>
+        </PaymentSettingsProvider>
       </CurrencyProvider>
     </QueryClientProvider>
   );

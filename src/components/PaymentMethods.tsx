@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { CONTACT_PAYMENT } from "@/config/contact-payment";
+import { usePaymentSettings } from "@/lib/payment-settings";
 
 export type PaymentMethodId = "cashapp" | "paypal" | "zelle" | "bitcoin";
 
@@ -144,12 +145,23 @@ function CopyButton({ value, label }: { value: string; label: string }) {
 }
 
 export function PaymentMethodDetails({
-  method,
+  method: baseMethod,
   amount,
 }: {
   method: MethodInfo;
   amount?: string | undefined;
 }) {
+  // The Bitcoin address and QR image can be changed by the admin from the dashboard.
+  const settings = usePaymentSettings();
+  const method: MethodInfo =
+    baseMethod.id === "bitcoin"
+      ? {
+          ...baseMethod,
+          value: settings.bitcoinAddress,
+          qrValue: `bitcoin:${settings.bitcoinAddress}`,
+          qrImage: settings.bitcoinQrUrl ?? undefined,
+        }
+      : baseMethod;
   return (
     <div>
       {amount && (
