@@ -5,13 +5,13 @@ export const CONTACT_PAYMENT = {
     // Shown on the Terms, Privacy, Returns and Shipping pages. Card processors check these.
     // Leave a field empty ("") to hide it.
     // The registered business name (or the owner's full name for a sole trader).
-    legalName: "",
+    legalName: "Livingston Chris",
     // An email address customers can write to for orders, refunds and privacy requests.
-    email: "",
+    email: "support@coldcoller.com",
     // Business or mailing address.
     address: "",
     // Whose laws the Terms follow, e.g. "the State of Florida, USA" or "England and Wales".
-    governingLaw: "",
+    governingLaw: "the State of Florida, USA",
     // The name customers see on their card statement. Must match what your card processor sets up.
     statementName: "CC Lifestyle",
     // Change this date whenever you edit the policy pages.
