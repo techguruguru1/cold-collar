@@ -150,29 +150,33 @@ export const adminReviewPayment = createServerFn({ method: "POST" })
       .eq("id", data.id);
     if (error) throw new Error("Couldn't update the order.");
 
-    // Confirmation email, only the first time an order is approved.
-    // Failures are logged and never undo the approval.
-    if (approve && before.payment_status !== "approved") {
-      const [{ sendOrderConfirmation }, { getRequestUrl }, { isCurrency }] = await Promise.all([
+    // Email the customer: confirmation the first time an order is approved, or a "payment not
+    // confirmed" email when a receipt is rejected. Failures are logged and never undo the decision.
+    const newDecision = approve
+      ? before.payment_status !== "approved"
+      : before.payment_status !== "rejected";
+    const ship = (before.shipping ?? {}) as Record<string, string>;
+    const to = before.email ?? ship["email"];
+    if (newDecision && to) {
+      const [emails, { getRequestUrl }, { isCurrency }] = await Promise.all([
         import("./order-emails.server"),
         import("@tanstack/react-start/server"),
         import("./currency"),
       ]);
-      const ship = (before.shipping ?? {}) as Record<string, string>;
-      const to = before.email ?? ship["email"];
-      if (to) {
-        await sendOrderConfirmation({
-          id: before.id,
-          token: before.access_token,
-          email: to,
-          name: ship["name"] ?? "",
-          lines: before.items as { id: string; qty: number }[],
-          total: Number(before.total),
-          currency: isCurrency(before.currency) ? before.currency : "USD",
-          paymentMethod: before.payment_method ?? "Bitcoin",
-          siteUrl: (process.env["SITE_URL"] || getRequestUrl().origin).replace(/\/$/, ""),
-        });
-      }
+      const order = {
+        id: before.id,
+        token: before.access_token,
+        email: to,
+        name: ship["name"] ?? "",
+        lines: before.items as { id: string; qty: number }[],
+        total: Number(before.total),
+        currency: isCurrency(before.currency) ? before.currency : "USD",
+        paymentMethod: before.payment_method ?? "Bitcoin",
+        siteUrl: (process.env["SITE_URL"] || getRequestUrl().origin).replace(/\/$/, ""),
+      } as const;
+      await (approve
+        ? emails.sendOrderConfirmation(order)
+        : emails.sendPaymentFailed(order, data.note ?? ""));
     }
     return { ok: true };
   });
