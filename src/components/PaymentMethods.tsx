@@ -205,24 +205,26 @@ export function PaymentMethodDetails({
         </div>
 
         {method.qrImage ? (
-          <div className="mx-auto border border-border bg-foreground p-3 md:mx-0">
+          // White background so the QR's own margin blends in; the image is scaled to fit.
+          <div className="mx-auto w-48 max-w-full shrink-0 bg-white p-2 md:mx-0">
             <img
               src={method.qrImage}
               alt={`${method.label} QR code`}
               width={176}
               height={176}
-              className="h-44 w-44 object-contain"
+              className="block aspect-square h-auto w-full object-contain"
             />
           </div>
         ) : method.qrValue ? (
-          <div className="mx-auto border border-border bg-foreground p-3 md:mx-0">
+          <div className="mx-auto w-48 max-w-full shrink-0 bg-white p-3 md:mx-0">
             <QRCodeSVG
               value={method.qrValue}
-              size={176}
+              size={168}
               level="M"
-              bgColor="var(--foreground)"
-              fgColor="var(--background)"
+              bgColor="#ffffff"
+              fgColor="#000000"
               title={`${method.label} QR code for Cold Coller`}
+              className="block h-auto w-full"
             />
           </div>
         ) : null}

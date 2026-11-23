@@ -240,19 +240,24 @@ export function BitcoinSettings() {
         <p className="mb-2 text-center text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
           {editing ? "Preview" : "Customers see"}
         </p>
-        <div className="border border-border bg-foreground p-3">
+        <div className={`w-48 max-w-full bg-white ${shownImage ? "p-2" : "p-3"}`}>
           {shownImage ? (
-            <img src={shownImage} alt="Bitcoin QR code" className="h-44 w-44 object-contain" />
+            <img
+              src={shownImage}
+              alt="Bitcoin QR code"
+              className="block aspect-square h-auto w-full object-contain"
+            />
           ) : isBitcoinAddress(shownAddress) ? (
             <QRCodeSVG
               value={`bitcoin:${shownAddress}`}
-              size={176}
+              size={168}
               level="M"
-              bgColor="var(--foreground)"
-              fgColor="var(--background)"
+              bgColor="#ffffff"
+              fgColor="#000000"
+              className="block h-auto w-full"
             />
           ) : (
-            <p className="flex h-44 w-44 items-center justify-center p-4 text-center text-xs text-background">
+            <p className="flex aspect-square w-full items-center justify-center p-4 text-center text-xs text-black">
               Enter a valid address to preview
             </p>
           )}

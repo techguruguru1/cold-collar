@@ -19,21 +19,27 @@ export function Header() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [menu, setMenu] = useState(false);
+  // Laptop widths (lg) don't have room for the search box next to the menu, so it opens below.
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     void navigate({ to: "/shop", search: { q: q.trim() || undefined } });
     setMenu(false);
+    setSearchOpen(false);
   };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 md:px-6">
-        <Link to="/" className="font-display text-xl tracking-[0.2em] text-brushed md:text-2xl">
+        <Link
+          to="/"
+          className="shrink-0 font-display text-lg tracking-[0.14em] text-brushed sm:text-xl sm:tracking-[0.2em] md:text-2xl"
+        >
           COLD COLLER
         </Link>
 
-        <nav className="ml-6 hidden items-center gap-6 lg:flex">
+        <nav className="ml-4 hidden items-center gap-4 lg:flex xl:ml-6 xl:gap-6">
           {NAV.map((n) => (
             <Link
               key={n.to}
@@ -48,7 +54,7 @@ export function Header() {
           ))}
         </nav>
 
-        <form onSubmit={submit} className="ml-auto hidden items-center md:flex">
+        <form onSubmit={submit} className="ml-auto hidden items-center md:flex lg:hidden xl:flex">
           <div className="flex items-center gap-2 border border-border bg-input px-3 py-2">
             <Search size={14} className="text-muted-foreground" />
             <input
@@ -56,17 +62,28 @@ export function Header() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search the collection"
               aria-label="Search products"
-              className="w-40 bg-transparent text-xs outline-none placeholder:text-muted-foreground lg:w-52"
+              className="w-40 bg-transparent text-xs outline-none placeholder:text-muted-foreground 2xl:w-52"
             />
           </div>
         </form>
 
-        <div className="ml-auto flex items-center gap-1 md:ml-2">
-          <CurrencySwitcher className="mr-1" />
+        <div className="ml-auto flex shrink-0 items-center gap-1 md:ml-2 lg:ml-auto xl:ml-2">
+          <span className="hidden sm:inline-flex">
+            <CurrencySwitcher className="mr-1" />
+          </span>
+          <button
+            type="button"
+            onClick={() => setSearchOpen((v) => !v)}
+            aria-label="Search"
+            aria-expanded={searchOpen}
+            className="hidden p-2 text-muted-foreground hover:text-silver lg:inline-flex xl:hidden"
+          >
+            <Search size={18} />
+          </button>
           <Link
             to="/wishlist"
             aria-label="Wishlist"
-            className="p-2 text-muted-foreground hover:text-silver"
+            className="hidden p-2 text-muted-foreground hover:text-silver sm:inline-flex"
           >
             <Heart size={18} />
           </Link>
@@ -99,6 +116,25 @@ export function Header() {
         </div>
       </div>
 
+      {searchOpen && (
+        <div className="hidden border-t border-border bg-background px-6 py-3 lg:block xl:hidden">
+          <form
+            onSubmit={submit}
+            className="mx-auto flex max-w-xl items-center gap-2 border border-border bg-input px-3 py-2"
+          >
+            <Search size={14} className="text-muted-foreground" />
+            <input
+              autoFocus
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search the collection"
+              aria-label="Search products"
+              className="w-full bg-transparent text-xs outline-none placeholder:text-muted-foreground"
+            />
+          </form>
+        </div>
+      )}
+
       {menu && (
         <div className="border-t border-border bg-background px-4 py-4 lg:hidden">
           <form
@@ -125,7 +161,20 @@ export function Header() {
                 {n.label}
               </Link>
             ))}
+            <Link
+              to="/wishlist"
+              onClick={() => setMenu(false)}
+              className="text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-silver sm:hidden"
+            >
+              Wishlist
+            </Link>
           </nav>
+          <div className="mt-4 flex items-center gap-3 border-t border-border pt-4 sm:hidden">
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              Currency
+            </span>
+            <CurrencySwitcher />
+          </div>
         </div>
       )}
     </header>
