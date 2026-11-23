@@ -15,7 +15,7 @@ export const CONTACT_PAYMENT = {
     // The name customers see on their card statement. Must match what your card processor sets up.
     statementName: "CC Lifestyle",
     // Change this date whenever you edit the policy pages.
-    policiesUpdated: "21 November 2026",
+    policiesUpdated: "23 November 2026",
   },
   card: {
     // false: checkout shows Card as "Unavailable" and it can't be selected, and the server
