@@ -5,7 +5,7 @@ export const CONTACT_PAYMENT = {
     // Shown on the Terms, Privacy, Returns and Shipping pages. Card processors check these.
     // Leave a field empty ("") to hide it.
     // The registered business name (or the owner's full name for a sole trader).
-    legalName: "Livingston Chris",
+    legalName: "Chris Livingston",
     // An email address customers can write to for orders, refunds and privacy requests.
     email: "support@coldcoller.com",
     // Business or mailing address.
